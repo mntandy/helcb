@@ -21,7 +21,7 @@
                  [hiccup "1.0.5"]
                  [cljs-ajax "0.8.1"]]
 
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
 
   :main ^:skip-aot helcb.core
@@ -31,7 +31,7 @@
 
   :cljsbuild
   {:builds
-   {:app {:source-paths ["src/cljs"]
+   {:app {:source-paths ["src/cljs" "src/cljc"]
           :compiler {:output-to "target/cljsbuild/public/js/app.js"
                      :output-dir "target/cljsbuild/public/js/out"
                      :main "helcb.main"
