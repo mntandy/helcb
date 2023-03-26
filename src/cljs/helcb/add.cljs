@@ -2,7 +2,8 @@
   (:require 
    [helcb.state :as state]
    [helcb.import-data :as import-data]
-   [helcb.columns :as columns]))
+   [helcb.columns :as columns]
+   [helcb.language :as language]))
 
 (defn text-input [name update! value disabled]
   [:label.label {:for name} name]
@@ -34,23 +35,19 @@
   (let [type (case @state/display
                :add-single-journey :journeys
                :add-single-station :stations)
-        keys (columns/db-labels type)] 
+        columns (language/table-display type)] 
     [:div
-     [:div.block
-      [:div.columns.is-centered
-       [:i "Here are the column labels and the first row. 
-              Select data type and appropriate restrictions on rows before importing..."]]]
      [:div.block
       [:div.columns.is-centered.m-3
        [:table.table.is-bordered
         [:thead>tr [:th [:i "Headers"]]
-         (for [column (get columns/labels type)]
-           [:th {:key column} column])]
+         (for [{key :key label :label} columns]
+           [:th {:key key} label])]
         [:tbody
          (into [:tr [:td [:i "Data"]]]
-               (for [key keys]
+               (for [{key :key} columns]
                  [:td {:key key}
-                  [text-input key (import-data/update-column! (keyword key)) (get @import-data/columns (keyword key)) false]]))]]]]]))
+                  [text-input key (import-data/update-column! key) (get @import-data/columns (keyword key)) false]]))]]]]]))
    
 (defn multi-importer []
   [uri-and-separator])

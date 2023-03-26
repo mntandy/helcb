@@ -2,8 +2,8 @@
 
 (def required-columns 
   {:journeys 
-   ["Departure station Id"
-    "Return station Id"
+   ["Departure station id"
+    "Return station id"
     "Covered distance (m)"
     "Duration (sec.)"]
    :stations
@@ -25,7 +25,8 @@
     {:key :distance :label "Covered distance (m)" :type "integer"}
     {:key :duration :label "Duration (sec.)" :type "integer"}]
    :stations
-   [{:key :nimi :label "Nimi" :type "text"}
+   [{:key :station-id :label "ID" :type "text"} 
+    {:key :nimi :label "Nimi" :type "text"}
     {:key :namn :label "Namn" :type "text"}
     {:key :name :label "Name" :type "text"}
     {:key :osoite :label "Osoite" :type "text"}
