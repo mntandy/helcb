@@ -38,6 +38,14 @@
 (def selected (r/cursor state [:selected]))
 (def main-button (r/cursor state [:main-button]))
 
+(defn set-error-message! [text]
+  (swap! state assoc :msg {:error true :text text}))
+
+(defn csv-import-success! [count]
+  (swap! state assoc
+         :msg {:text (str "Imported " count " rows.")}
+         :main-button (get button-options :explore)))
+
 (defn is-initial []
   (= @display :initial))
 (defn is-not-initial []

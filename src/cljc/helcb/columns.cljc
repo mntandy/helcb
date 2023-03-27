@@ -25,7 +25,7 @@
     {:key :distance :label "Covered distance (m)" :type "integer"}
     {:key :duration :label "Duration (sec.)" :type "integer"}]
    :stations
-   [{:key :station-id :label "ID" :type "text"} 
+   [{:key :stationid :label "ID" :type "text"} 
     {:key :nimi :label "Nimi" :type "text"}
     {:key :namn :label "Namn" :type "text"}
     {:key :name :label "Name" :type "text"}
@@ -37,10 +37,20 @@
     {:key :y :label "y" :type "decimal"}]})
 
 
-(defn column-labels [type]
-  (mapv #(:label %) (get columns type)))
+(defn csv-labels [type]
+  (map #(:label %) (get columns type)))
 
-(defn column-data-types [type]
+(defn db-keys [type]
+  (map #(:key %) (get columns type)))
+
+(defn keys-as-names [type]
+  (map name (db-keys type)))
+
+(defn data-types [type]
   (mapv #(:type %) (get columns type)))
+
+(defn label->key [type]
+  (zipmap (csv-labels type) (db-keys type)))
+
 
 

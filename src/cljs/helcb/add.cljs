@@ -2,8 +2,8 @@
   (:require 
    [helcb.state :as state]
    [helcb.import-data :as import-data]
-   [helcb.columns :as columns]
-   [helcb.language :as language]))
+   [helcb.language :as language]
+   [helcb.http :as http]))
 
 (defn text-input [name update! value disabled]
   [:label.label {:for name} name]
@@ -30,12 +30,15 @@
        [:option {:value \;} "Semi-colon (;)"]]]]]])
 
 
+(defn import-button [event]
+  [:div.columns.m-3>div.column.is-offset-7.is-1.has-text-right
+   [:input.button
+    {:type :submit
+     :value "Import!"
+     :on-click event}]])
 
-(defn single-importer []
-  (let [type (case @state/display
-               :add-single-journey :journeys
-               :add-single-station :stations)
-        columns (language/table-display type)] 
+(defn single-importer [type]
+  (let [columns (language/table-display type)] 
     [:div
      [:div.block
       [:div.columns.is-centered.m-3
@@ -47,22 +50,19 @@
          (into [:tr [:td [:i "Data"]]]
                (for [{key :key} columns]
                  [:td {:key key}
-                  [text-input key (import-data/update-column! key) (get @import-data/columns (keyword key)) false]]))]]]]]))
+                  [text-input key (import-data/update-column! key) (get @import-data/columns (keyword key)) false]]))]]]]
+     [import-button #(http/post-import-columns! type @import-data/columns)]]))
    
-(defn multi-importer []
-  [uri-and-separator])
+(defn multi-importer [type]
+  [:div
+  [uri-and-separator]
+  [import-button #(http/post-import-csv! type (import-data/csv))]])
 
 (defn importer []
-  (println @import-data/import-data)
-  (when (state/is-importing)
-    [:div
-     (case @state/display
-       (:add-multiple-journeys :add-multiple-stations) [multi-importer]
-       (:add-single-journey :add-single-station) [single-importer]
-       nil)
-     [:div.columns.m-3>div.column.is-offset-7.is-1.has-text-right
-      [:input.button
-       {:type :submit
-        :value "Import!"
-        :on-click nil}]]]))
+  (case @state/display
+     :add-single-journey [single-importer :journeys]
+     :add-multiple-journeys [multi-importer :journeys]
+     :add-single-station [single-importer :stations]
+     :add-multiple-stations [multi-importer :stations]
+    nil))
 

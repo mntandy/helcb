@@ -3,7 +3,6 @@
    [reagent.core :as r]))
 
 (def initial-import {:columns {}
-                     :name ""
                      :uri "journeys.csv"
                      :sep \,});:data {:labels []} {:labels :label {:content "" :type "" :restrictions {:nlt "" :ngt ""}}}  )
 
@@ -15,6 +14,9 @@
 (def uri (r/cursor import-data [:uri]))
 (def sep (r/cursor import-data [:sep]))
 (def columns (r/cursor import-data [:columns]))
+
+(defn csv []
+  (select-keys @import-data [:uri :sep]))
 
 (defn update-column! [key]
   (fn [params]
