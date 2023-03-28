@@ -1,5 +1,14 @@
 (ns helcb.columns)
 
+(def type-table
+  {:journeys "journeys"
+   :stations "stations"})
+
+(defn table->type [s]
+  (get {"journeys" :journeys
+        "stations" :stations}
+       s))
+
 (def required-columns 
   {:journeys 
    ["Departure station id"
@@ -33,8 +42,8 @@
     {:key :adress :label "Adress" :type "text"}
     {:key :kaupunki :label "Kaupunki" :type "text"}
     {:key :stad :label "Stad" :type "text"}
-    {:key :x :label "x" :type "decimal"}
-    {:key :y :label "y" :type "decimal"}]})
+    {:key :x :label "x" :type "text"}
+    {:key :y :label "y" :type "text"}]})
 
 
 (defn csv-labels [type]
@@ -48,6 +57,14 @@
 
 (defn data-types [type]
   (mapv #(:type %) (get columns type)))
+
+
+(defn key->data-type [type]
+  (zipmap (db-keys type) (data-types type)))
+
+(defn data-type-for-key [type key]
+  (get (key->data-type type) key))
+
 
 (defn label->key [type]
   (zipmap (csv-labels type) (db-keys type)))

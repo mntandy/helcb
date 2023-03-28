@@ -3,7 +3,9 @@
    [ajax.core :refer [GET POST]]
    [helcb.state :as state]
    [helcb.validation :as validate]
-   [helcb.utils :refer [all-vals]]))
+   [helcb.utils :refer [all-vals]]
+   [helcb.explore.state :as explore.state]
+   [helcb.filters :as filters]))
 
 (defn post-object [params handler]
   (println params)
@@ -15,7 +17,6 @@
    :error-handler #(state/set-error-message! (:error %))})
 
 (defn check-for-errors [data validator]
-  (println data)
   (if (contains? data :error)
     (state/set-error-message! (:error data))
     (when-let [errors (validator data)]
@@ -38,3 +39,19 @@
        data
        #(when-not (check-for-errors % validate/csv-import-success)
           (state/csv-import-success! (:count (:result %))))))))
+
+(defn get-data! [reset add-offset-to-limit]
+  (GET (str "/data/" (explore.state/prepare-for-request reset add-offset-to-limit))
+    {:headers {"accept" "application/transit+json"}
+     :handler #(when-not (check-for-errors % validate/rows)
+                 (explore.state/update-rows! (:rows %) reset))}))
+
+(defn get-filtered-data []
+  (if-let [element (filters/first-without-option (explore.state/filters))]
+    (state/set-error-message! (str "\"Filter\" is not a kind of filter for " (explore.state/filter-text-for-column element) "."))
+    (get-data! true true)))
+
+(defn download-initial-data [selected]
+  (when (state/is-exploring selected)
+    (explore.state/set-name selected)
+    (get-data! true false)))

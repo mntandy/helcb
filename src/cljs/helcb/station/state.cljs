@@ -1,11 +1,14 @@
-(ns helcb.station-data  
+(ns helcb.station.state
   (:require [reagent.core :as r]))
 
-
 (def initial-settings
-  {:station-id nil})
+  {:station-id nil :parent nil :row nil})
 
 (def settings (r/atom initial-settings))
+
+(def parent (r/cursor settings [:parent]))
+
+(def row (r/cursor settings [:row]))
 
 (def station-example {:name "Hanasaari"
                       :namn "Hanaholmen"
@@ -18,3 +21,8 @@
                       :y "60.16582"})
 
 (def info (r/atom station-example))
+
+(defn initialise! [parent row]
+  (swap! settings assoc
+         :parent parent
+         :row row))

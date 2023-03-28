@@ -2,9 +2,9 @@
   (:require [reagent.dom :as dom]
             [helcb.select :refer [select]]
             [helcb.notification :refer [notification]]
-            [helcb.add :refer [importer]]
-            [helcb.explore :refer [explorer]]
-            [helcb.station-view :refer [station-view]]))
+            [helcb.import.main :refer [importer]]
+            [helcb.explore.main :refer [explorer]]
+            [helcb.station.main :refer [station-view]]))
 
 (defn main []
   (fn []

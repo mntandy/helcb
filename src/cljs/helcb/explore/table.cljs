@@ -1,10 +1,11 @@
-(ns helcb.table
+(ns helcb.explore.table
   (:require 
    [helcb.state :as state]
-   [helcb.explore-data :as explore-data]
+   [helcb.explore.state :as explore.state]
+   [helcb.station.state :as station.state]
    [helcb.filters :as filters]
    [helcb.language :as language]
-   [helcb.columns :as columns]))
+   [helcb.http :as http]))
 
 (defn input [type name on-change on-enter style]
   [:label.label {:for name} name]
@@ -21,8 +22,8 @@
 (defn filter-input [column style]
   (text-input
    column
-   (explore-data/update-filter-for-column! column)
-   :get-filtered-data
+   (explore.state/update-filter-for-column! column)
+   http/get-filtered-data
    style))
 
 (defn selector-input [style default handler options]
@@ -38,21 +39,25 @@
        type))
 
 
-(defn select-station [text]
-  [:a {:on-click #(println text)} text])
+(defn select-station [row text]
+  [:a {:on-click #(do (station.state/initialise! @state/display row)
+                      (state/update-state! :single-station))} text])
 
-(defn link-to-station [path text]
-  ((get-in
-    {:journeys
-     {:departure-station select-station
-      :return-station select-station}
-     :stations
-     {:name select-station}}
-    path identity)
-   text))
+(defn link-to-station [row path text]
+  (if-let [linked (get-in
+                   {:journeys
+                    {:departure-station select-station
+                     :return-station select-station}
+                    :stations
+                    {:name select-station}}
+                   path)]
+    (linked row text)
+    text))
   
 
 (defn table []
+  (println @explore.state/settings)
+  (println @explore.state/rows)
   (let [type (case @state/display
                :explore-journeys :journeys
                :explore-stations :stations)
@@ -63,28 +68,30 @@
       [:thead
        (into [:tr] (for [{key :key label :label} columns]
                      [:th {:key key :style {:text-align "center"}}
-                      [:a {:on-click #(explore-data/update-sorting! key)}
-                       (explore-data/column-label-with-direction key label)]]))
+                      [:a {:on-click #(explore.state/update-sorting! key)}
+                       (explore.state/column-label-with-direction key label)]]))
        (into [:tr] (for [{key :key label :label data-type :type} columns]
                      [:th {:key (str key "filter") :style {:text-align (align-by-type data-type)}}
                       (selector-input
                        {:width "auto"}
                        "Filter"
-                       #(explore-data/update-filter-selector! key (-> % .-target .-value))
+                       #(explore.state/update-filter-selector! key (-> % .-target .-value))
                        (filters/options-for-type data-type))
-                      (filter-input label {:width "30%"})]))]
+                      (filter-input key {:width "30%"})]))]
       (into [:tbody]
-            (for [row (map (language/row-by-language type) @explore-data/rows)]
+            (for [unfiltered-row @explore.state/rows
+                  :let [row ((language/row-by-language type) unfiltered-row)]]
               (into [:tr]
                     (for [{key :key data-type :type} columns
                           :let [text (get row key)]]
                       [:td {:key (str row key) :style {:text-align (align-by-type data-type)}} 
-                       (link-to-station [type key] text)]))))]]))
+                       (link-to-station unfiltered-row [type key] text)]))))]]))
 
 (defn get-more-rows []
   [:input.button
    {:type :submit
     :on-click #(do
-                 (explore-data/add-limit-to-offset))
+                 (explore.state/add-limit-to-offset)
+                 (http/get-data! false false))
     :value "Get more rows"
-    :disabled (:got-all @explore-data/settings)}])
+    :disabled (:got-all @explore.state/settings)}])

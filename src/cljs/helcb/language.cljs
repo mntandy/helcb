@@ -31,9 +31,9 @@
     :stations (fn [row]
                 (case @current
                   "Eng" {:name (:name row)
-                         :address (str (:osotie row) ", " (:kaupunki row))}
+                         :address (str (:osoite row) ", " (:kaupunki row))}
                   "Fi" {:name (:nimi row)
-                        :address (str (:osotie row) ", " (:kaupunki row))}
+                        :address (str (:osoite row) ", " (:kaupunki row))}
                   "Sv" {:name (:namn row)
                         :address (str (:adress row) ", " (:stad row))}))))
 

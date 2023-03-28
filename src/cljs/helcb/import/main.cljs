@@ -1,7 +1,7 @@
-(ns helcb.add
+(ns helcb.import.main
   (:require 
    [helcb.state :as state]
-   [helcb.import-data :as import-data]
+   [helcb.import.state :as import.state]
    [helcb.language :as language]
    [helcb.http :as http]))
 
@@ -19,23 +19,23 @@
    [:div.column.is-offset-4.is-3
     [:div.field
      [:label.label "Address to CSV-file:"]
-     [text-input "Uri" (import-data/update! :uri) @import-data/uri false]]]
+     [text-input "Uri" (import.state/update! :uri) @import.state/uri false]]]
    [:div.column.is-1
     [:div.control [:label.label {:for :options} "Separator:"]
      [:div.select.is-normal
-      [:select {:value @import-data/sep
+      [:select {:value @import.state/sep
                 :name :options
-                :on-change #((import-data/update! :sep) (-> % .-target .-value))}
+                :on-change #((import.state/update! :sep) (-> % .-target .-value))}
        [:option {:value \,} "Comma (,)"]
        [:option {:value \;} "Semi-colon (;)"]]]]]])
 
 
-(defn import-button [event]
+(defn import-button [type]
   [:div.columns.m-3>div.column.is-offset-7.is-1.has-text-right
    [:input.button
     {:type :submit
      :value "Import!"
-     :on-click event}]])
+     :on-click #(http/post-import-columns! type @import.state/columns)}]])
 
 (defn single-importer [type]
   (let [columns (language/table-display type)] 
@@ -50,13 +50,13 @@
          (into [:tr [:td [:i "Data"]]]
                (for [{key :key} columns]
                  [:td {:key key}
-                  [text-input key (import-data/update-column! key) (get @import-data/columns (keyword key)) false]]))]]]]
-     [import-button #(http/post-import-columns! type @import-data/columns)]]))
+                  [text-input key (import.state/update-column! key) (get @import.state/columns (keyword key)) false]]))]]]]
+     [import-button type]]))
    
 (defn multi-importer [type]
   [:div
   [uri-and-separator]
-  [import-button #(http/post-import-csv! type (import-data/csv))]])
+  [import-button #(http/post-import-csv! type (import.state/csv))]])
 
 (defn importer []
   (case @state/display

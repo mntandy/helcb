@@ -2,17 +2,22 @@
   (:require 
    [reagent.core :as r]
    [helcb.state :as state]
-   [helcb.import-data :as import-data]
-   [helcb.language :as language]))
+   [helcb.http :as http]
+   [helcb.import.state :as import.state]
+   [helcb.language :as language]
+   [helcb.explore.state :as explore.state]))
 
 (defn element-width [s]
   (. (.getElementById js/document s) -offsetWidth))
 
 (defn on-main-button-click! []
   (if (state/is-initial)
-    (state/adjust-by-selected!)
+    (do 
+      (http/download-initial-data @state/selected)
+      (state/update-state! @state/selected))
     (do (state/reset-to-initial!)
-        (import-data/reset-to-initial!))))
+        (import.state/reset-to-initial!)
+        (explore.state/reset-to-initial!))))
 
 (defn select []
   (let [width (r/atom 0)]

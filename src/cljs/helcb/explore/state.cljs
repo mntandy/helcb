@@ -1,7 +1,7 @@
-(ns helcb.explore-data
+(ns helcb.explore.state
   (:require [reagent.core :as r]))
 
-(def initial-settings {:table nil :offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
+(def initial-settings {:name nil :offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
 
 (def test-rows-journeys 
   [{:departure-id "094"
@@ -17,11 +17,21 @@
 
 (def settings (r/atom initial-settings))
 
-(def rows (r/atom test-rows-journeys))
+(def rows (r/atom []))
 
 (defn reset-to-initial! []
   (reset! settings initial-settings)
   (reset! rows []))
+
+(defn set-name [type]
+  (swap! settings assoc :name 
+         (case type 
+           :explore-journeys "journeys"
+           :explore-stations "stations"
+           nil)))
+
+(defn filters []
+  (get @settings :filters))
 
 (defn add-limit-to-offset []
   (swap! settings update :offset + (:limit @settings)))

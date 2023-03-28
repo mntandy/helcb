@@ -1,10 +1,10 @@
-(ns helcb.explore
+(ns helcb.explore.main
   (:require 
-   [helcb.table :refer [table get-more-rows]]
+   [helcb.explore.table :refer [table get-more-rows]]
    [helcb.state :as state]))
 
 (defn explorer []
-  (when (state/is-exploring)
+  (when (state/is-exploring @state/display)
     [:div
      [:div.columns.is-centered
       [table]]

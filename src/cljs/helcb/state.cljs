@@ -51,25 +51,26 @@
 (defn is-not-initial []
   (not= @display :initial))
 
-(defn is-importing []
-  (some #{@display} [:add-single-journey 
-                     :add-multiple-journeys
-                     :add-single-station 
-                     :add-multiple-stations]))
+(defn is-importing [x]
+  (some #{x} [:add-single-journey
+              :add-multiple-journeys
+              :add-single-station
+              :add-multiple-stations]))
 
-(defn is-exploring [] 
-  (some #{@display} [:explore-journeys :explore-stations]))
+(defn is-exploring [x] 
+  (some #{x} [:explore-journeys 
+              :explore-stations]))
 
 (defn close-msg! []
   (swap! state assoc :msg nil))
 
-(defn adjust-by-selected! []
+
+(defn update-state! [x]
   (swap! state assoc
-         :display @selected
-         :main-button (get button-options 
-                           (case @selected
-                             (:explore-journeys :explore-stations) :explore
-                             :add))))
+         :display x
+         :main-button (get button-options (if (is-exploring x)
+                                            :explore
+                                            :add))))
 
 (defn update-selector! [selection]
   (let [k (keyword selection)]

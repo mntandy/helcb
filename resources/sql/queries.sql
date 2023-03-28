@@ -9,6 +9,9 @@ SELECT column_name FROM information_schema.columns WHERE table_schema = 'public'
 --:name get-first-row :? :*
 select * from :i:name LIMIT '1'
 
+--:name get-rows-with-value
+SELECT * FROM :i:name WHERE :i:column = :i:value;
+
 --:name get-every-row-from-table :? :*
 SELECT * from :i:name
 
