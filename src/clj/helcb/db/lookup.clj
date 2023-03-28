@@ -8,7 +8,7 @@
     "integer" (str (get {"equal to" " = " "not equal to" " != " "greater than" " > " "less than" " < "} option "") (bigdec filter))
     "text" (str " LIKE " (case option
                            "equals" (str " '" filter "'")
-                           "begins with" (str " '" filter "'%")
+                           "begins with" (str " '" filter "%'")
                            "ends with" (str " '%" filter "'")
                            "contains" (str " '%" filter "%'")))
     ""))
