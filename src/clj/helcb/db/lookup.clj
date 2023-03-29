@@ -1,6 +1,7 @@
 (ns helcb.db.lookup
   (:require [helcb.db.core :as db]
-            [helcb.columns :as columns]))
+            [helcb.columns :as columns]
+            [clojure.set :refer [rename-keys]]))
 
 (defn where-clause [data-type option filter]
   (println data-type option filter)
@@ -22,7 +23,6 @@
         (let [vec (seq filters)
               [key val] (first vec)
               produce-str (fn [k v] 
-                            (println k v)
                             (apply str (name k) (where-clause (columns/data-type-for-key type k) (:option v) (:text v))))]
           (apply str
                  "WHERE " (produce-str key val)
@@ -37,11 +37,16 @@
     ""))
 
 (defn generate-lookup-map [params connective]
-  {:table-name (get params :name)
-   :sort (sort-string (get params :sort-direction "") (get params :sort-by ""))
+  (let [r {:table-name (get params :name)
+   :sort (sort-string (get params :sort-direction "") (get params :sort-by-column ""))
    :filters (where-string (columns/table->type (get params :name)) (:filters params) connective)
    :offset (:offset params)
-   :limit (:limit params)})
+   :limit (:limit params)}]
+    (println r)
+    r))
 
 (defn look-up [params]
-  (db/get-from-table (generate-lookup-map params :and)))
+  (println "!" params)
+  (if (= (get params :name) "journeys") 
+      (mapv #(rename-keys % columns/journeys-underline->dot) (db/get-journeys-with-station-names (generate-lookup-map params :and)))
+      (db/get-from-table (generate-lookup-map params :and))))

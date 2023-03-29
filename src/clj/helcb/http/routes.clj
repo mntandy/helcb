@@ -26,6 +26,10 @@
   (response/ok
    (check-for-errors-and-reply params validate/csv-import #(db.import/stations-from-csv %))))
 
+(defn import-journeys [{:keys [params]}]
+  (response/ok
+   (check-for-errors-and-reply params validate/csv-import #(db.import/journeys-from-csv %))))
+
 (defn get-data [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
     (response/ok (check-for-errors-and-reply params validate/data-request
@@ -35,5 +39,6 @@
    {:middleware [middleware/wrap-formats]}
    ["/" {:get html-handler}]
    ["/import-stations" {:post import-stations}]
+   ["/import-journeys" {:post import-journeys}]
    ["/data/:data" {:get get-data}]
    ])

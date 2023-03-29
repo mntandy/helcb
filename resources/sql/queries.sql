@@ -10,7 +10,7 @@ SELECT column_name FROM information_schema.columns WHERE table_schema = 'public'
 select * from :i:name LIMIT '1'
 
 --:name get-rows-with-value
-SELECT * FROM :i:name WHERE :i:column = :i:value;
+SELECT * FROM :i:name WHERE :i:column = :value;
 
 --:name get-every-row-from-table :? :*
 SELECT * from :i:name
@@ -23,6 +23,19 @@ SELECT * FROM :i:name :sql:filters ORDER BY :i:sort-by DESC LIMIT :i:limit OFFSE
 
 --:name get-from-table :? :*
 SELECT * FROM :i:table-name :sql:filters :sql:sort LIMIT :i:limit OFFSET :i:offset
+
+--:name get-journeys-with-station-names :? :*
+SELECT 
+journeys.*,
+departure.name AS departure_name,
+departure.namn AS departure_namn,
+departure.nimi AS departure_nimi,
+return.name AS return_name,
+return.namn AS return_namn,
+return.nimi AS return_nimi
+FROM journeys JOIN stations departure ON departure.stationid = journeys.departure_station_id
+JOIN stations return ON return.stationid = journeys.return_station_id
+:sql:filters :sql:sort LIMIT :i:limit OFFSET :i:offset
 
 --:name get-column-from-table :? :*
 SELECT :i:column FROM :i:name :sql:filters :sql:sort
@@ -46,3 +59,4 @@ SELECT tablename
 FROM pg_catalog.pg_tables
 WHERE schemaname != 'pg_catalog' AND 
     schemaname != 'information_schema';
+

@@ -5,6 +5,7 @@
    [helcb.validation :as validate]
    [helcb.utils :refer [all-vals]]
    [helcb.explore.state :as explore.state]
+   [helcb.import.state :as import.state]
    [helcb.filters :as filters]))
 
 (defn post-object [params handler]
@@ -14,11 +15,11 @@
    {"accept" "application/transit+json"}
    :params params
    :handler handler
-   :error-handler #(state/set-error-message! (:error %))})
+   :error-handler #(state/set-error-message! (str "from server: " (:error %)))})
 
 (defn check-for-errors [data validator]
   (if (contains? data :error)
-    (state/set-error-message! (:error data))
+    (state/set-error-message! (str "from server: " (:error data)))
     (when-let [errors (validator data)]
       (state/set-error-message! (all-vals errors)))))
 
@@ -33,11 +34,12 @@
 
 (defn post-import-csv! [type data]
   (if-let [errors (validate/csv-import data)]
-    (state/set-error-message! (all-vals errors))
+    (state/set-error-message! (str "OK.." (all-vals errors)))
     (POST (if (= type :journeys ) "/import-journeys" "/import-stations")
       (post-object
        data
        #(when-not (check-for-errors % validate/csv-import-success)
+          (import.state/success!)
           (state/csv-import-success! (:count (:result %))))))))
 
 (defn get-data! [reset add-offset-to-limit]

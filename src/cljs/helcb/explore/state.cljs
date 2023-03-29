@@ -1,7 +1,9 @@
 (ns helcb.explore.state
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [helcb.filters :as filters]))
 
 (def initial-settings {:name nil :offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
+
 
 (def test-rows-journeys 
   [{:departure-id "094"
@@ -44,9 +46,11 @@
     (swap! settings assoc
            :sort-direction (case (:sort-direction @settings) "ASC" "DESC" "DESC" "ASC" ""))))
 
-(defn update-filter-for-column! [column]
+(defn update-filter-for-column! [column data-type]
   (fn [value]
-    (swap! settings assoc-in [:filters column :text] value)))
+    (if (contains? (filters) column)
+      (swap! settings assoc-in [:filters column :text] value)
+      (swap! settings assoc-in [:filters column] {:text value :option (first (filters/options-for-type data-type))}))))
 
 (defn update-filter-selector! [column value]
   (when (not= value "Filter")

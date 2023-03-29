@@ -20,12 +20,12 @@
     :journeys (fn [row]
                 (assoc
                  (case @current
-                   "Eng" {:departure-station (:departure-name row)
-                          :return-station (:return-name row)}
-                   "Fi" {:departure-station (:departure-nimi row)
-                         :return-station (:return-nimi row)}
-                   "Sv" {:departure-station (:departure-namn row)
-                         :return-station (:return-namn row)})
+                   "Eng" {:departure-station (:departure_name row)
+                          :return-station (:return_name row)}
+                   "Fi" {:departure-station (:departure_nimi row)
+                         :return-station (:return_nimi row)}
+                   "Sv" {:departure-station (:departure_namn row)
+                         :return-station (:return_namn row)})
                  :duration (:duration row)
                  :distance (:distance row)))
     :stations (fn [row]
@@ -42,23 +42,26 @@
     :stations
     (case @current
       "Eng" [{:key :name :label "Name" :type "text"}
-             {:key :address :label "Address" :type "text"}]
-      "Fi" [{:key :name :label "Nimi" :type "text"}
-            {:key :address :label "Osotie" :type "text"}]
-      "Sv" [{:key :name :label "Namn" :type "text"}
-            {:key :address :label "Adress" :type "text"}])
+             {:key :osoite :label "Address" :type "text"}
+             {:key :kaupunki :label "Municipality" :type "text"}]
+      "Fi" [{:key :nimi :label "Nimi" :type "text"}
+            {:key :osoite :label "Osoite" :type "text"}
+            {:key :kaupunki :label "Kaupunki" :type "text"}]
+      "Sv" [{:key :namn :label "Namn" :type "text"}
+            {:key :adress :label "Adress" :type "text"}
+            {:key :stad :label "Stad" :type "text"}])
     :journeys 
     (case @current
-      "Eng" [{:key :departure-station :label "Departure station" :type "text"}
-             {:key :return-station :label "Return station" :type "text"}
+      "Eng" [{:key :departure.name :label "Departure station" :type "text"}
+             {:key :return.name :label "Return station" :type "text"}
              {:key :distance :label "Covered distance (m)" :type "integer"}
              {:key :duration :label "Duration (sec.)" :type "integer"}]
-      "Fi" [{:key :departure-station :label "Lähtöasema" :type "text"}
-            {:key :return-station :label "Paluuasema" :type "text"}
+      "Fi" [{:key :departure.nimi :label "Lähtöasema" :type "text"}
+            {:key :return.nimi :label "Paluuasema" :type "text"}
             {:key :distance :label "Katettu etäisyys (m)" :type "integer"}
             {:key :duration :label "Kesto (sek.)" :type "integer"}]
-      "Sv" [{:key :departure-station :label "Avgångsstation" :type "text"}
-            {:key :return-station :label "Returstation" :type "text"}
+      "Sv" [{:key :departure.namn :label "Avgångsstation" :type "text"}
+            {:key :return.namn :label "Returstation" :type "text"}
             {:key :distance :label "Tillryggalagd sträcka (m)" :type "integer"}
             {:key :duration :label "Varaktighet (sek.)" :type "integer"}])))
 

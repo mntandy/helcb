@@ -37,7 +37,8 @@
    :sort-direction [[{:message "Sort-direction is wrong."
                       :validate (fn [s] (or (= s "") (some #{s} ["ASC" "DESC"])))}]]
    :filters [[{:message "Error with filters: some column is wrong"
-               :validate (fn [m] (every? (set (columns/db-keys type)) (keys m)))}]
+               :validate (fn [m] 
+                           (every? (set (get columns/keys-for-filters type)) (keys m)))}]
              [{:message "Error with filters: some option is wrong"
                :validate (fn [m] (every?
                                   (fn [k]
@@ -45,7 +46,7 @@
                                           (filters/options-for-type
                                            (columns/data-type-for-key type k))))
                                   (keys m)))}]
-             [{:message "Error wtih filters: some text is wrong"
+             [{:message "Error with filters: some text is wrong"
                :validate (fn [m] (every? (fn [k] (get-in m [k :text])) (keys m)))}]]
    :offset [[st/number-str :message "offset no good."]]
    :limit [[st/number-str :message "limit no good."]]})

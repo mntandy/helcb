@@ -3,7 +3,7 @@
 (defn options-for-type [type]
   (case type
     ("integer" "decimal") ["equal to" "not equal to" "greater than" "less than"] 
-    "text" ["equals" "begins with" "ends with" "contains"]))
+    "text" ["begins with" "ends with" "contains" "equals"]))
 
 (defn has-no-option? [filters]
   (fn [column]

@@ -19,16 +19,15 @@
 (defn text-input [name on-change on-enter style]
   [input :text name on-change on-enter style])
 
-(defn filter-input [column style]
+(defn filter-input [column data-type style]
   (text-input
    column
-   (explore.state/update-filter-for-column! column)
+   (explore.state/update-filter-for-column! column data-type)
    http/get-filtered-data
    style))
 
-(defn selector-input [style default handler options]
+(defn selector-input [style handler options]
   [:select {:style style :on-change handler}
-   [:option {:value default} default]
    (for [o options]
      [:option {:key o :value o} o])])
 
@@ -70,22 +69,20 @@
                      [:th {:key key :style {:text-align "center"}}
                       [:a {:on-click #(explore.state/update-sorting! key)}
                        (explore.state/column-label-with-direction key label)]]))
-       (into [:tr] (for [{key :key label :label data-type :type} columns]
+       (into [:tr] (for [{key :key data-type :type} columns]
                      [:th {:key (str key "filter") :style {:text-align (align-by-type data-type)}}
                       (selector-input
                        {:width "auto"}
-                       "Filter"
                        #(explore.state/update-filter-selector! key (-> % .-target .-value))
                        (filters/options-for-type data-type))
-                      (filter-input key {:width "30%"})]))]
+                      (filter-input key data-type {:width "30%"})]))]
       (into [:tbody]
-            (for [unfiltered-row @explore.state/rows
-                  :let [row ((language/row-by-language type) unfiltered-row)]]
+            (for [row @explore.state/rows]
               (into [:tr]
                     (for [{key :key data-type :type} columns
                           :let [text (get row key)]]
                       [:td {:key (str row key) :style {:text-align (align-by-type data-type)}} 
-                       (link-to-station unfiltered-row [type key] text)]))))]]))
+                       (link-to-station row [type key] text)]))))]]))
 
 (defn get-more-rows []
   [:input.button

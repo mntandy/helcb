@@ -36,6 +36,6 @@
 
 (defn import-from-uri [uri sep side-effect! labels]
   (try
-    (with-open [reader (io/reader uri)]
+    (with-open [reader (io/reader uri)] 
       {:result {:count (count (map side-effect! (filter not-empty (filter-labels labels (csv-data->maps (read-csv reader sep))))))}})
     (catch Exception e (print-and-return-file-error e))))
