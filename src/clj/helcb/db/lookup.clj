@@ -7,6 +7,7 @@
   (println data-type option filter)
   (case data-type
     "integer" (str (get {"equal to" " = " "not equal to" " != " "greater than" " > " "less than" " < "} option "") (bigdec filter))
+    "timestamp" (str (get {"before" " < " "after" " > "} option "") " '" filter "'")
     "text" (str " LIKE " (case option
                            "equals" (str " '" filter "'")
                            "begins with" (str " '" filter "%'")
@@ -38,11 +39,11 @@
 
 (defn generate-lookup-map [params connective]
   (let [r {:table-name (get params :name)
-   :sort (sort-string (get params :sort-direction "") (get params :sort-by-column ""))
+   :sort (sort-string (get params :sort-direction "") (name (get params :sort-by-column "")))
    :filters (where-string (columns/table->type (get params :name)) (:filters params) connective)
    :offset (:offset params)
    :limit (:limit params)}]
-    (println r)
+    (println "r " r)
     r))
 
 (defn look-up [params]

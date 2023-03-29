@@ -16,4 +16,4 @@
   (db/create-new-table! {:name "stations" :columns (column-with-data-type-string (columns/keys-as-names :stations) (repeat "text"))}))
 
 (defn create-journeys-table []
-  (db/create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/journeys-db-keys-as-names) ["text" "text" "integer" "integer"])}))
+  (db/create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/journeys-db-keys-as-names) (columns/journeys-db-types))}))

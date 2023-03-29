@@ -52,15 +52,21 @@
             {:key :stad :label "Stad" :type "text"}])
     :journeys 
     (case @current
-      "Eng" [{:key :departure.name :label "Departure station" :type "text"}
+      "Eng" [{:key :departure :label "Departure" :type "timestamp"}
+             {:key :departure.name :label "Departure station" :type "text"}
+             {:key :return :label "Return" :type "timestamp"}
              {:key :return.name :label "Return station" :type "text"}
              {:key :distance :label "Covered distance (m)" :type "integer"}
              {:key :duration :label "Duration (sec.)" :type "integer"}]
-      "Fi" [{:key :departure.nimi :label "Lähtöasema" :type "text"}
+      "Fi" [{:key :departure :label "Lähtö" :type "timestamp"}
+            {:key :departure.nimi :label "Lähtöasema" :type "text"}
+            {:key :return :label "Palata" :type "timestamp"}
             {:key :return.nimi :label "Paluuasema" :type "text"}
             {:key :distance :label "Katettu etäisyys (m)" :type "integer"}
             {:key :duration :label "Kesto (sek.)" :type "integer"}]
-      "Sv" [{:key :departure.namn :label "Avgångsstation" :type "text"}
+      "Sv" [{:key :departure :label "Avresa" :type "timestamp"}
+            {:key :departure.namn :label "Avgångsstation" :type "text"}
+            {:key :return :label "Retur" :type "timestamp"}
             {:key :return.namn :label "Returstation" :type "text"}
             {:key :distance :label "Tillryggalagd sträcka (m)" :type "integer"}
             {:key :duration :label "Varaktighet (sek.)" :type "integer"}])))

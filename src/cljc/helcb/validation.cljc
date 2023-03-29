@@ -32,8 +32,8 @@
   (first (st/validate params name-schema)))
 
 (defn label-data [type]
-  {:sort-by-column [[{:validate (fn [s] (or (= s "") (some #{s} (columns/keys-as-names type))))
-                      :message "Sort-by-column does not exists."}]]
+  {:sort-by-column [[{:validate (fn [s] (or (= s "") (some #{s} (columns/db-keys type))))
+                      :message "Sort-by-column is wrong."}]]
    :sort-direction [[{:message "Sort-direction is wrong."
                       :validate (fn [s] (or (= s "") (some #{s} ["ASC" "DESC"])))}]]
    :filters [[{:message "Error with filters: some column is wrong"

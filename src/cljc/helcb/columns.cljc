@@ -17,16 +17,30 @@
 
 (def db-columns
   {:journeys
-   [{:key :departure_station_id :label "Departure station id" :type "text"}
+   [{:key :departure :label "Departure" :type "timestamp"}
+    {:key :return :label "Return" :type "timestamp"}
+    {:key :departure_station_id :label "Departure station id" :type "text"}
     {:key :return_station_id :label "Return station id" :type "text"}
     {:key :distance :label "Covered distance (m)" :type "integer"}
     {:key :duration :label "Duration (sec.)" :type "integer"}]})
+
+(defn labels-for-journeys-csv-import []
+  (map #(:label %) (concat (:journeys db-columns) (:journeys import-columns))))
+
+(defn keys-for-journeys-csv-import []
+  (map #(:key %) (concat (:journeys db-columns) (:journeys import-columns))))
+
+(defn journeys-csv-import-label->key []
+  (zipmap (labels-for-journeys-csv-import) (keys-for-journeys-csv-import)))
 
 (defn journeys-db-csv-labels []
   (map #(:label %) (get db-columns :journeys)))
 
 (defn journeys-db-keys []
   (map #(:key %) (get db-columns :journeys)))
+
+(defn journeys-db-types []
+  (map #(:type %) (get db-columns :journeys)))
 
 (defn journeys-db-keys-as-names []
   (map name (journeys-db-keys)))
@@ -55,7 +69,9 @@
 
 (def columns
   {:journeys
-   [{:key :departure_station_id :label "Departure station id" :type "text"}
+   [{:key :departure :label "Departure" :type "timestamp"}
+    {:key :return :label "Return" :type "timestamp"}
+    {:key :departure_station_id :label "Departure station id" :type "text"}
     {:key :return_station_id :label "Return station id" :type "text"}
     {:key :departure.name :label "Departure station name" :type "text"}
     {:key :departure.namn :label "Departure station name" :type "text"}
@@ -80,7 +96,7 @@
 
 (def keys-for-filters
   {:journeys
-   [:return.name :return.namn :return.nimi
+   [:return :departure :return.name :return.namn :return.nimi
     :departure.name :departure.nimi :departure.namn
     :duration :distance]
    :stations

@@ -63,26 +63,28 @@
         columns (language/table-display type)]
     [:div 
      [:div.columns.is-centered>section>div.m-5>p.title (get (language/heading-by-language) type)]
-     [:table.table
+     [:div.columns.is-centered.m-5>div.column.is-two-thirds
+     [:table.table.is-narrow
       [:thead
        (into [:tr] (for [{key :key label :label} columns]
                      [:th {:key key :style {:text-align "center"}}
-                      [:a {:on-click #(explore.state/update-sorting! key)}
+                      [:a {:on-click #(do (explore.state/update-sorting! key)
+                                          (http/get-filtered-data))}
                        (explore.state/column-label-with-direction key label)]]))
        (into [:tr] (for [{key :key data-type :type} columns]
                      [:th {:key (str key "filter") :style {:text-align (align-by-type data-type)}}
                       (selector-input
-                       {:width "auto"}
+                       {:width "40%"}
                        #(explore.state/update-filter-selector! key (-> % .-target .-value))
                        (filters/options-for-type data-type))
-                      (filter-input key data-type {:width "30%"})]))]
+                      (filter-input key data-type {:width "40%"})]))]
       (into [:tbody]
             (for [row @explore.state/rows]
               (into [:tr]
                     (for [{key :key data-type :type} columns
                           :let [text (get row key)]]
                       [:td {:key (str row key) :style {:text-align (align-by-type data-type)}} 
-                       (link-to-station row [type key] text)]))))]]))
+                       (link-to-station row [type key] text)]))))]]]))
 
 (defn get-more-rows []
   [:input.button

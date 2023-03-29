@@ -32,6 +32,7 @@
 
 (defn get-data [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
+    (println params)
     (response/ok (check-for-errors-and-reply params validate/data-request
                                              (fn [m] {:rows (look-up m)})))))
 (def routes
