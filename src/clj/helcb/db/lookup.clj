@@ -1,6 +1,7 @@
 (ns helcb.db.lookup
   (:require [helcb.db.core :as db]
             [helcb.columns :as columns]
+            [helcb.db.utils :as db.utils]
             [clojure.set :refer [rename-keys]]))
 
 (defn where-clause [data-type option filter]
@@ -24,7 +25,7 @@
         (let [vec (seq filters)
               [key val] (first vec)
               produce-str (fn [k v] 
-                            (apply str (name k) (where-clause (columns/data-type-for-key type k) (:option v) (:text v))))]
+                            (apply str (name k) (where-clause (columns/data-type-for-key type k) (:option v) (db.utils/double-up-single-quotes (:text v)))))]
           (apply str
                  "WHERE " (produce-str key val)
                  (mapv (fn [[k v]] (str connective-str (produce-str k v))) (rest vec)))))))
