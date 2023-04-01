@@ -34,3 +34,9 @@
   (read-column-by-index [^java.sql.Time v _2 _3]
     (.toLocalTime v)))
 
+
+;departure_statistics  integer ARRAY [24]
+;return_statistics  integer ARRAY [24]
+
+;UPDATE stations SET departures [:i:hour] = departures [:i:hour] + 1
+;WHERE stationid = i:stationid

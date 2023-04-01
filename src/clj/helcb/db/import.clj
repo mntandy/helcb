@@ -3,12 +3,16 @@
    [clojure.set :refer [rename-keys]]
    [helcb.csv.core :as csv]
    [helcb.db.core :as db]
-   [helcb.columns :as columns]))
+   [helcb.columns :as columns]
+   [helcb.db.utils :as db.utils]))
 
+
+(defn update-stationid [m]
+  (update m :stationid db.utils/trim-leading-zeros))
 
 (defn prepare-station-row-for-import [m]
   (let [result (merge (zipmap (columns/db-keys :stations) (repeat ""))
-                      (rename-keys m (columns/label->key :stations)))]
+                      (update-stationid (rename-keys m (columns/label->key :stations))))]
     {:name "stations" :column-names (map name (keys result)) :column-values (vals result)}))
 
 (defn stations-from-csv [params]
@@ -21,6 +25,10 @@
                       m) :departure_station :return_station)]
     {:name "journeys" :column-names (map name (keys result)) :column-values (vals result)}))
 
+
+;todo import
+;remove padded zeros from stationid on import journeys
+;add edit-option for station
 
 (defn check-station-id [m]
   (let [departure-station (first (db/get-rows-with-value {:name "stations" :column "stationid" :value (:departure_station_id m)}))
@@ -42,10 +50,10 @@
       (update :duration bigint)
       (update :departure convert-time)
       (update :return convert-time)))
-    
+
 (defn import-or-print! [m]
   (let [renamed-m (rename-keys m (columns/journeys-csv-import-label->key))]
-    (if-not (check-station-id renamed-m)
+    (if-not (check-station-id (update-stationid renamed-m))
       (println "failed check-station-id:" renamed-m)
       (if-not (integer-str-distance-and-duration? renamed-m)
         (println "failed time or int conversion:" renamed-m)

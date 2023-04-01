@@ -60,3 +60,8 @@ FROM pg_catalog.pg_tables
 WHERE schemaname != 'pg_catalog' AND 
     schemaname != 'information_schema';
 
+--:name select-hour :? :*
+SELECT return_station_id, extract(hour from return)
+FROM journeys 
+WHERE departure_station_id LIKE '082'
+

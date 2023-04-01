@@ -41,13 +41,16 @@
   (case type
     :stations
     (case @current
-      "Eng" [{:key :name :label "Name" :type "text"}
+      "Eng" [{:key :stationid :label "ID" :type "text"}
+             {:key :name :label "Name" :type "text"}
              {:key :osoite :label "Address" :type "text"}
              {:key :kaupunki :label "Municipality" :type "text"}]
-      "Fi" [{:key :nimi :label "Nimi" :type "text"}
+      "Fi" [{:key :stationid :label "ID" :type "text"}
+            {:key :nimi :label "Nimi" :type "text"}
             {:key :osoite :label "Osoite" :type "text"}
             {:key :kaupunki :label "Kaupunki" :type "text"}]
-      "Sv" [{:key :namn :label "Namn" :type "text"}
+      "Sv" [{:key :stationid :label "ID" :type "text"}
+            {:key :namn :label "Namn" :type "text"}
             {:key :adress :label "Adress" :type "text"}
             {:key :stad :label "Stad" :type "text"}])
     :journeys 

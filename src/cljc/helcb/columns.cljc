@@ -100,7 +100,7 @@
     :departure.name :departure.nimi :departure.namn
     :duration :distance]
    :stations
-   [:stationid :nimi :namn :osoite :adress :kaupunki :stad]})
+   [:stationid :nimi :namn :name :osoite :adress :kaupunki :stad]})
 
 (def journeys-underline->dot
   {:departure_name :departure.name
