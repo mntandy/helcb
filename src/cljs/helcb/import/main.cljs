@@ -30,7 +30,6 @@
        [:option {:value \,} "Comma (,)"]
        [:option {:value \;} "Semi-colon (;)"]]]]]])
 
-
 (defn import-button [on-click]
   [:div.columns.m-3>div.column.is-offset-7.is-1.has-text-right
    [:input.button
@@ -55,10 +54,17 @@
                   [text-input key (import.state/update-column! key) (get @import.state/columns (keyword key)) false]]))]]]]
      [import-button #(http/post-import-columns! type @import.state/columns)]]))
    
+(defn import-csv! [route]
+  (http/post! route (import.state/csv) (fn [response]
+                                        (import.state/success!)
+                                        (state/csv-import-success! (:count (:result response))))))
+
 (defn multi-importer [type]
   [:div
   [uri-and-separator]
-  [import-button #(http/post-import-csv! type (import.state/csv))]])
+  [import-button #(import-csv! (case type
+                   :journeys "/import-journeys"
+                   :stations "/import-stations"))]])
 
 (defn importer []
   (case @state/display

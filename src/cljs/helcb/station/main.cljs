@@ -5,12 +5,17 @@
             [helcb.columns :as columns]
             [helcb.commons :as commons]))
 
-
 (defn buttons []
   [:div.columns.m-3>div.column.is-offset-7.is-1.has-text-right
-   [commons/button "Back to list" #(do (station.state/reset-to-initial!)
-                                       (state/update-state! @station.state/parent))]
-   ])
+   [commons/button "Back to list" (fn [] 
+                                    (state/update-state! @station.state/parent)
+                                    (station.state/reset-to-initial!))]])
+
+(defn update-station-data! [data]
+  (http/post! "/update-station" data
+            (fn [_]
+              (station.state/set-edit! nil)
+              (state/set-message! "Update successful!"))))
 
 (defn station-view []
   (println @station.state/settings)
@@ -24,9 +29,7 @@
           (for [{key :key label :label} (:stations columns/columns)
                 :let [value (get @station.state/row key)
                       id (get @station.state/row :id)
-                      post #(do 
-                              (http/post-update-station! {:id id :column (name key) :value value})
-                              ())]]
+                      post #(update-station-data! {:id id :column (name key) :value value})]]
             (into [:tr [:td label]]
                   (if (= @station.state/edit key)
                     [[:td {:key id} (commons/text-input label value #(station.state/update-row! key %) post {:width "auto"})]

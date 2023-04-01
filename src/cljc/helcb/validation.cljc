@@ -74,3 +74,13 @@
 
 (defn updated-station [params]
   (first (st/validate params update-station-schema)))
+
+(defn post [route]
+  (case route
+    "/update-station" updated-station
+    ("/import-journeys" "/import-stations") csv-import))
+
+(defn response [route]
+  (case route
+    "/update-station" (constantly nil)
+    ("/import-journeys" "/import-stations") csv-import-success))

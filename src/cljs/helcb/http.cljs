@@ -5,55 +5,24 @@
    [helcb.validation :as validate]
    [helcb.utils :refer [all-vals]]
    [helcb.explore.state :as explore.state]
-   [helcb.import.state :as import.state]
-   [helcb.station.state :as station.state]
    [helcb.filters :as filters]))
 
-(defn post-object [params handler]
-  (println params)
-  {:format :json
-   :headers
-   {"accept" "application/transit+json"}
-   :params params
-   :handler handler
-   :error-handler #(state/set-error-message! (str "from server: " %))})
-
 (defn check-for-errors [data validator]
-  (println data)
   (if (contains? data :error)
     (state/set-error-message! (str "from server: " (:error data)))
     (when-let [errors (validator data)]
       (state/set-error-message! (all-vals errors)))))
 
-(defn post-import-columns! [type data]
-  (if-let [errors (validate/csv-import data)]
+(defn post! [route data success]
+  (if-let [errors ((validate/post route) data)]
     (state/set-error-message! (all-vals errors))
-    (POST (if (= type :journeys) "/journeys" "/stations")
-      (post-object
-       data
-       #(when-not (check-for-errors % validate/csv-import-success)
-          (state/csv-import-success! (:count (:result %))))))))
-
-(defn post-update-station! [data]
-  (if-let [errors (validate/updated-station data)]
-    (state/set-error-message! (all-vals errors))
-    (POST "/update-station"
-      (post-object
-       data
-       (fn [m]
-         (when-not (check-for-errors m (constantly nil))
-           (station.state/set-edit! nil) 
-           (state/set-message! "Update successful!")))))))
-
-(defn post-import-csv! [type data]
-  (if-let [errors (validate/csv-import data)]
-    (state/set-error-message! (str "OK.." (all-vals errors)))
-    (POST (if (= type :journeys ) "/import-journeys" "/import-stations")
-      (post-object
-       data
-       #(when-not (check-for-errors % validate/csv-import-success)
-          (import.state/success!)
-          (state/csv-import-success! (:count (:result %))))))))
+    (POST route
+      {:format :json
+       :headers
+       {"accept" "application/transit+json"}
+       :params data
+       :handler #(when-not (check-for-errors % (validate/response route)) (success %))
+       :error-handler #(state/set-error-message! (str "From server: " %))})))
 
 (defn get-data! [reset add-offset-to-limit]
   (GET (str "/data/" (explore.state/prepare-for-request reset add-offset-to-limit))

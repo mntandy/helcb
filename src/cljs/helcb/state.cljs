@@ -70,6 +70,7 @@
 
 (defn update-state! [x]
   (swap! state assoc
+         :msg nil
          :display x
          :main-button (get button-options (if (is-exploring x)
                                             :explore

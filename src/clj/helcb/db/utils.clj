@@ -1,7 +1,6 @@
 (ns helcb.db.utils
   (:require [clojure.string :as str]))
 
-
 (defn double-up-single-quotes [s]
   (str/replace s #"(?<!')'(?!')" "''"))
 
