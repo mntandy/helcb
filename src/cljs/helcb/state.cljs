@@ -41,6 +41,9 @@
 (defn set-error-message! [text]
   (swap! state assoc :msg {:error true :text text}))
 
+(defn set-message! [text]
+  (swap! state assoc :msg {:error nil :text text}))
+
 (defn csv-import-success! [count]
   (swap! state assoc
          :msg {:text (str "Imported " count " rows.")}

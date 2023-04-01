@@ -62,3 +62,15 @@
 
 (defn rows [params]
   (first (st/validate params rows-schema)))
+
+(def update-station-schema
+  {:id [[st/required :message "No db-id."]
+          [st/number-str :message "Something is wrong with ID."]]
+   :value [[st/required :message "No new value."]
+        [st/string :message "Something is wrong with value."]]
+   :column [[st/required :message "No column."]
+           [st/string :message "Something is wrong with column."]]
+   })
+
+(defn updated-station [params]
+  (first (st/validate params update-station-schema)))

@@ -6,6 +6,7 @@
    [helcb.utils :refer [all-vals]]
    [helcb.explore.state :as explore.state]
    [helcb.import.state :as import.state]
+   [helcb.station.state :as station.state]
    [helcb.filters :as filters]))
 
 (defn post-object [params handler]
@@ -15,9 +16,10 @@
    {"accept" "application/transit+json"}
    :params params
    :handler handler
-   :error-handler #(state/set-error-message! (str "from server: " (:error %)))})
+   :error-handler #(state/set-error-message! (str "from server: " %))})
 
 (defn check-for-errors [data validator]
+  (println data)
   (if (contains? data :error)
     (state/set-error-message! (str "from server: " (:error data)))
     (when-let [errors (validator data)]
@@ -31,6 +33,17 @@
        data
        #(when-not (check-for-errors % validate/csv-import-success)
           (state/csv-import-success! (:count (:result %))))))))
+
+(defn post-update-station! [data]
+  (if-let [errors (validate/updated-station data)]
+    (state/set-error-message! (all-vals errors))
+    (POST "/update-station"
+      (post-object
+       data
+       (fn [m]
+         (when-not (check-for-errors m (constantly nil))
+           (station.state/set-edit! nil) 
+           (state/set-message! "Update successful!")))))))
 
 (defn post-import-csv! [type data]
   (if-let [errors (validate/csv-import data)]

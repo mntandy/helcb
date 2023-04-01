@@ -3,6 +3,11 @@ INSERT INTO :i:name
 (:i*:column-names)
 VALUES (:v*:column-values)
 
+-- :name update-column-in-row! :! :n
+UPDATE :i:name
+SET :i:column = :value
+WHERE id = :id
+
 -- :name get-columns :? :*
 SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = :name
 

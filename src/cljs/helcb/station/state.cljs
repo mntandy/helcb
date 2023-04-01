@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]))
 
 (def initial-settings
-  {:station-id nil :parent nil :row nil})
+  {:parent nil :row nil :edit nil})
 
 (def settings (r/atom initial-settings))
 
@@ -10,17 +10,17 @@
 
 (def row (r/cursor settings [:row]))
 
-(def station-example {:name "Hanasaari"
-                      :namn "Hanaholmen"
-                      :nimi "Hanasaari"
-                      :osotie "Hanasaarenranta 1"
-                      :adress "Hanaholmsstranden 1"
-                      :kaupunki "Espoo"
-                      :stad "Esbo"
-                      :x "24.840319"
-                      :y "60.16582"})
+(def edit (r/cursor settings [:edit]))
 
-(def info (r/atom station-example))
+(defn update-row! [column text]
+  (swap! settings assoc-in [:row column] text))
+
+(defn set-edit! [field]
+  (swap! settings assoc
+         :edit field))
+
+(defn reset-to-initial! []
+  (reset! settings initial-settings))
 
 (defn initialise! [parent row]
   (swap! settings assoc

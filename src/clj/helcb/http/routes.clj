@@ -5,6 +5,7 @@
    [helcb.validation :as validate]
    [helcb.http.middleware :as middleware]
    [helcb.db.import :as db.import]
+   [helcb.db.update :as db.update]
    [helcb.db.lookup :refer [look-up]]))
 
 (defn html-handler [_]
@@ -30,6 +31,10 @@
   (response/ok
    (check-for-errors-and-reply params validate/csv-import #(db.import/journeys-from-csv %))))
 
+(defn update-station [{:keys [params]}]
+  (response/ok
+   (check-for-errors-and-reply params validate/updated-station #(db.update/column-in-row! (merge {:name "stations"} %)))))
+
 (defn get-data [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
     (println params)
@@ -41,5 +46,6 @@
    ["/" {:get html-handler}]
    ["/import-stations" {:post import-stations}]
    ["/import-journeys" {:post import-journeys}]
+   ["/update-station" {:post update-station}]
    ["/data/:data" {:get get-data}]
    ])

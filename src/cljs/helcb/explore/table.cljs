@@ -5,24 +5,14 @@
    [helcb.station.state :as station.state]
    [helcb.filters :as filters]
    [helcb.language :as language]
-   [helcb.http :as http]))
+   [helcb.http :as http]
+   [helcb.commons :as commons]))
 
-(defn input [type name on-change on-enter style]
-  [:label.label {:for name} name]
-  [:input {:type type
-           :name name
-           :style style
-           :on-key-up (fn [event] (when (= (. event -key) "Enter") (on-enter)))
-           :on-change #(on-change (-> % .-target .-value))
-           }])
-
-(defn text-input [name on-change on-enter style]
-  [input :text name on-change on-enter style])
-
-(defn filter-input [column data-type style]
-  (text-input
-   column
-   (explore.state/update-filter-for-column! column data-type)
+(defn filter-input [key data-type style]
+  (commons/text-input
+   key
+   (get-in (explore.state/filters) [key :text])
+   (explore.state/update-filter-for-column! key data-type)
    http/get-filtered-data
    style))
 
