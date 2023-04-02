@@ -29,6 +29,9 @@ SELECT * FROM :i:name :sql:filters ORDER BY :i:sort-by DESC LIMIT :i:limit OFFSE
 --:name get-from-table :? :*
 SELECT * FROM :i:table-name :sql:filters :sql:sort LIMIT :i:limit OFFSET :i:offset
 
+--:name get-from-table-no-limit-no-offset :? :*
+SELECT * FROM :i:table-name :sql:filters :sql:sort
+
 --:name get-journeys-with-station-names :? :*
 SELECT 
 journeys.*,

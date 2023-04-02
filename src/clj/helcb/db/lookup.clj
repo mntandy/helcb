@@ -48,12 +48,12 @@
     r))
 
 (defn look-up [params]
-  (println "!" params)
   (if (= (get params :name) "journeys") 
       (mapv #(rename-keys % columns/journeys-underline->dot) (db/get-journeys-with-station-names (generate-lookup-map params :and)))
       (db/get-from-table (generate-lookup-map params :and))))
 
-
+(defn get-stations-with-filter [params]
+  (db/get-from-table-no-limit-no-offset (generate-lookup-map params :and)))
 
 (defn extract-time-for-analysis [datetime]
   (.getHour datetime))
