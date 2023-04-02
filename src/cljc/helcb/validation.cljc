@@ -32,19 +32,19 @@
   (first (st/validate params name-schema)))
 
 (defn label-data [type]
-  {:sort-by-column [[{:validate (fn [s] (or (= s "") (some #{s} (columns/db-keys type))))
+  {:sort-by-column [[{:validate (fn [s] (or (= s "") (some #{s} (columns/for-lookup type :key))))
                       :message "Sort-by-column is wrong."}]]
    :sort-direction [[{:message "Sort-direction is wrong."
                       :validate (fn [s] (or (= s "") (some #{s} ["ASC" "DESC"])))}]]
    :filters [[{:message "Error with filters: some column is wrong"
                :validate (fn [m] 
-                           (every? (set (get columns/keys-for-filters type)) (keys m)))}]
+                           (every? (set (columns/for-lookup type :key)) (keys m)))}]
              [{:message "Error with filters: some option is wrong"
                :validate (fn [m] (every?
                                   (fn [k]
                                     (some #{(get-in m [k :option])}
                                           (filters/options-for-type
-                                           (columns/data-type-for-key type k))))
+                                           (columns/data-type-from-key-for-lookup type k))))
                                   (keys m)))}]
              [{:message "Error with filters: some text is wrong"
                :validate (fn [m] (every? (fn [k] (get-in m [k :text])) (keys m)))}]]
@@ -54,7 +54,7 @@
 (defn data-request [params]
   (if-let [errors (map-with-name params)]
     errors
-    (first (st/validate params (label-data (columns/table->type (get params :name)))))))
+    (first (st/validate params (label-data (columns/table-name>key (get params :name)))))))
 
 (def rows-schema
   {:rows [[st/required :message "No data."]

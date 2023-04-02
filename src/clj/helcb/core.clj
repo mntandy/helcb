@@ -13,7 +13,7 @@
        (apply str (map #(str ", " %1 " " %2 "") (next columns) (next types)))))
 
 (defn create-stations-table []
-  (db/create-new-table! {:name "stations" :columns (column-with-data-type-string (columns/keys-as-names :stations) (repeat "text"))}))
+  (db/create-new-table! {:name "stations" :columns (column-with-data-type-string (columns/for-db :stations name :key) (columns/for-db :stations :type))}))
 
 (defn create-journeys-table []
-  (db/create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/journeys-db-keys-as-names) (columns/journeys-db-types))}))
+  (db/create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/for-db :journeys name :key) (columns/for-db :journeys :type))}))
