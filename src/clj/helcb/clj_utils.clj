@@ -1,7 +1,8 @@
 (ns helcb.clj-utils
   (:require [clojure.string :as str]))
 
-(defn integer-string? [s] (re-matches #"-?(0|[1-9]\d*+)" s))
+(defn convert-to-bigint-or-zero [s]
+  (try (bigint s) (catch Exception e 0)))
 
 (defn convert-time [s]
   (try (java.time.LocalDateTime/parse s) (catch Exception e nil)))

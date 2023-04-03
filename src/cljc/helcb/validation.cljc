@@ -17,10 +17,11 @@
   (first (st/validate params csv-schema)))
 
 (def csv-import-success-schema
-  {[:result :count] [[st/required :message "Something went wrong with the import"]
-                     [st/number-str :message "Something went wrong with the import"]]})
+  {:result [[st/required :message "Something went wrong with the import"]
+              [st/map :message "Something went wrong with the import"]]})
 
 (defn csv-import-success [params]
+  (println params)
   (first (st/validate params csv-import-success-schema)))
 
 (def name-schema

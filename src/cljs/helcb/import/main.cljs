@@ -56,8 +56,8 @@
    
 (defn import-csv! [route]
   (http/post! route (import.state/csv) (fn [response]
-                                        (import.state/success!)
-                                        (state/csv-import-success! (:count (:result response))))))
+                                         (import.state/success!)
+                                         (state/csv-import-success! response))))
 
 (defn multi-importer [type]
   [:div

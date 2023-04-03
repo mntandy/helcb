@@ -5,7 +5,8 @@
    [helcb.db.core :as db]
    [helcb.db.lookup :as db.lookup]
    [helcb.columns :as columns]
-   [helcb.clj-utils :as utils]))
+   [helcb.clj-utils :as utils]
+   [maailma.core :as m]))
 
 (defn update-stationid [m]
   (update m :stationid utils/trim-leading-zeros))
@@ -18,7 +19,7 @@
 
 (defn stations-from-csv [params]
   (csv/import-from-uri (:uri params) (:sep params)
-                         #(db/insert-row! (prepare-station-row-for-import %))
+                         #(run! (comp db/insert-row! prepare-station-row-for-import) %)
                          (columns/for-db :stations :label)))
 
 (defn prepare-journey-row-for-import [m] 
@@ -26,32 +27,55 @@
                       (dissoc m :departure_station :return_station))]
     {:name "journeys" :column-names (map name (keys result)) :column-values (vals result)}))
 
+(defn station-with-that-id-has-that-name [id name] 
+  (some #{name} (vals (select-keys (db.lookup/station-from-stationid id) [:name :namn :nimi]))))
+
 (defn check-station-id [m]
-  (let [departure-station (db.lookup/station-from-stationid (:departure_station_id m))
-        return-station (db.lookup/station-from-stationid (:return_station_id m))]
-    (and (some #{(:departure_station m)} (vals (select-keys departure-station [:name :namn :nimi])))
-         (some #{(:return_station m)} (vals (select-keys return-station [:name :namn :nimi]))))))
+  (or (and
+         (station-with-that-id-has-that-name (:departure_station_id m) (:departure_station m))
+         (station-with-that-id-has-that-name (:return_station_id m) (:return_station m)))
+        (println "failed check-station-id: " m)))
 
-(defn integer-str-distance-and-duration? [m]
-  (and (utils/integer-string? (:distance m)) (utils/integer-string? (:duration m))))   
+(defn check-distance-and-duration [m]
+  (or (and (<= 10 (:distance m)) (<= 10 (:duration m)))
+      (println "bad or short distance or duration: " m)))
+  
+(defn import-journey! [m]
+  (let [preprocessed-m
+        (-> m
+            (rename-keys (zipmap (columns/for-import :journeys :label) (columns/for-import :journeys :key)))
+            (update :departure_station_id utils/trim-leading-zeros)
+            (update :return_station_id utils/trim-leading-zeros)
+            (update :distance utils/convert-to-bigint-or-zero)
+            (update :duration utils/convert-to-bigint-or-zero)
+            (update :departure utils/convert-time)
+            (update :return utils/convert-time))]
+    (if (and (check-station-id preprocessed-m) (check-distance-and-duration preprocessed-m))
+      (db/insert-row! (prepare-journey-row-for-import preprocessed-m)) 
+      0)))
 
-(defn convert-to-time-and-int [m] 
-  (-> m
-      (update :distance bigint)
-      (update :duration bigint)
-      (update :departure utils/convert-time)
-      (update :return utils/convert-time)))
 
-(defn import-or-print! [m]
-  (let [renamed-m (rename-keys m (zipmap (columns/for-import :journeys :label) (columns/for-import :journeys :key)))]
-    (if-not (check-station-id (update-stationid renamed-m))
-      (println "failed check-station-id:" renamed-m)
-      (if-not (integer-str-distance-and-duration? renamed-m)
-        (println "failed time or int conversion:" renamed-m)
-        (db/insert-row! (prepare-journey-row-for-import (convert-to-time-and-int renamed-m)))))))
+(defn import-reducer [save-row!]
+  (fn [col]
+    (reduce (fn [result next]
+               (case (save-row! next)
+                 0 (-> result
+                       (update :line inc)
+                       (update :ignored conj (+ 2 (:line result))))
+                 1 (-> result
+                       (update :line inc)
+                       (update :imported inc))))
+             {:line 0 :ignored [] :imported 0}
+             col)))
 
-(defn journeys-from-csv [params] 
-  (csv/import-from-uri (:uri params) (:sep params)
-                         import-or-print!
-                         (columns/for-import :journeys :label)))
+(defn print-and-return-file-error [e]
+  (println (.getMessage e))
+  {:error "Something's wrong with the file. Does it exist? Is it a CSV file? Go find out!"})
+
+(defn journeys-from-csv [params]
+  (try
+    {:result (csv/import-from-uri (:uri params) (:sep params)
+                                  (import-reducer import-journey!)
+                                  (columns/for-import :journeys :label))}
+    (catch Exception e (print-and-return-file-error e))))
 

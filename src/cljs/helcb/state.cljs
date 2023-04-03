@@ -44,9 +44,12 @@
 (defn set-message! [text]
   (swap! state assoc :msg {:error nil :text text}))
 
-(defn csv-import-success! [count]
+(defn csv-import-success! [result]
   (swap! state assoc
-         :msg {:text (str "Imported " count " rows.")}
+         :msg {:text [:div [:p "Imported " (:imported result) " rows out of " (:line result) ". "]
+                      [:p "The following lines were not imported:" [:br]
+                      (apply str (first (:ignored result)) (map (fn [x y] (str x y)) (repeat ", ") (rest (:ignored result))))
+                      "."]]}
          :main-button (get button-options :explore)))
 
 (defn is-initial []

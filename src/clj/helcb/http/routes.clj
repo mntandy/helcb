@@ -28,8 +28,9 @@
    (check-for-errors-and-reply params validate/csv-import #(db.import/stations-from-csv %))))
 
 (defn import-journeys [{:keys [params]}]
-  (response/ok
+  (response/ok 
    (check-for-errors-and-reply params validate/csv-import #(db.import/journeys-from-csv %))))
+   
 
 (defn update-station [{:keys [params]}]
   (response/ok

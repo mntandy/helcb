@@ -20,10 +20,6 @@
 (defn read-csv [reader sep]
   (csv/read-csv reader :separator (separator sep)))
 
-(defn print-and-return-file-error [e]
-  (println (.getMessage e))
-  {:error "Something's wrong with the file. Does it exist? Is it a CSV file? Go find out!"})
-
 (defn csv-data->maps [csv-data]
   (map zipmap
        (repeat (get-labels (first csv-data)))
@@ -34,8 +30,6 @@
     (map #(select-keys % labels) m)
     m))
 
-(defn import-from-uri [uri sep side-effect! labels]
-  (try
-    (with-open [reader (io/reader uri)] 
-      {:result {:count (count (map side-effect! (filter not-empty (filter-labels labels (csv-data->maps (read-csv reader sep))))))}})
-    (catch Exception e (print-and-return-file-error e))))
+(defn import-from-uri [uri sep iterate! labels]
+  (with-open [reader (io/reader uri)] 
+      (iterate! (filter not-empty (filter-labels labels (csv-data->maps (read-csv reader sep)))))))

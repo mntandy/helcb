@@ -21,7 +21,7 @@
        :headers
        {"accept" "application/transit+json"}
        :params data
-       :handler #(when-not (check-for-errors % (validate/response route)) (success %))
+       :handler #(when-not (check-for-errors % (validate/response route)) (success (:result %)))
        :error-handler #(state/set-error-message! (str "From server: " %))})))
 
 (defn get-data! [reset add-offset-to-limit]

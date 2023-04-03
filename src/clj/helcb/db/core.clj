@@ -4,6 +4,7 @@
    [next.jdbc.result-set]
    [mount.core :as mount]
    [conman.core :as conman]
+   [helcb.columns :as columns]
    [helcb.config :refer [env]]))
 
 (mount/defstate ^:dynamic *db*
@@ -34,6 +35,16 @@
   (read-column-by-index [^java.sql.Time v _2 _3]
     (.toLocalTime v)))
 
+
+(defn column-with-data-type-string [columns types]
+  (str (first columns) " " (first types)
+       (apply str (map #(str ", " %1 " " %2 "") (next columns) (next types)))))
+
+(defn create-stations-table []
+  (create-new-table! {:name "stations" :columns (column-with-data-type-string (columns/for-db :stations name :key) (columns/for-db :stations :type))}))
+
+(defn create-journeys-table []
+  (create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/for-db :journeys name :key) (columns/for-db :journeys :type))}))
 
 ;departure_statistics  integer ARRAY [24]
 ;return_statistics  integer ARRAY [24]
