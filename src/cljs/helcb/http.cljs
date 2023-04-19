@@ -4,7 +4,8 @@
    [helcb.state :as state]
    [helcb.validation :as validate]
    [helcb.utils :refer [all-vals]]
-   [helcb.explore.state :as explore.state]
+   [helcb.explore.state :as explore.state] 
+   [helcb.station.state :as station.state]
    [helcb.filters :as filters]))
 
 (defn check-for-errors [data validator]
@@ -39,3 +40,9 @@
   (when (state/is-exploring selected)
     (explore.state/set-name selected)
     (get-data! true false)))
+
+(defn get-station-traffic [id]
+  (GET (str "/station-traffic/" {:id id})
+    {:headers {"accept" "application/transit+json"}
+     :handler #(when-not (check-for-errors % validate/station-traffic)
+                 (station.state/update-traffic! (:traffic %)))}))

@@ -29,8 +29,10 @@
 
 
 (defn select-station [row text]
-  [:a {:on-click #(do (station.state/initialise! @state/display row)
-                      (state/update-state! :single-station))} text])
+  [:a {:on-click #(do
+                    (http/get-station-traffic (:stationid row))
+                    (station.state/initialise! @state/display row)
+                    (state/update-state! :single-station))} text])
 
 (defn link-to-station [row path text]
   (if-let [linked (get-in

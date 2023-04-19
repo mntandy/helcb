@@ -5,8 +5,7 @@
    [helcb.db.core :as db]
    [helcb.db.lookup :as db.lookup]
    [helcb.columns :as columns]
-   [helcb.clj-utils :as utils]
-   [maailma.core :as m]))
+   [helcb.clj-utils :as utils]))
 
 (defn update-stationid [m]
   (update m :stationid utils/trim-leading-zeros))
@@ -27,19 +26,30 @@
                       (dissoc m :departure_station :return_station))]
     {:name "journeys" :column-names (map name (keys result)) :column-values (vals result)}))
 
-(defn station-with-that-id-has-that-name [id name] 
-  (some #{name} (vals (select-keys (db.lookup/station-from-stationid id) [:name :namn :nimi]))))
+(defn stations-not-exists? [m]
+  (when-not (and 
+             (db.lookup/station-exists? (:departure_station_id m)) 
+             (db.lookup/station-exists? (:return_station_id m)))
+    (str "something is wrong with the station ids: " (:departure_station_id m) (:return_station_id m))))
 
-(defn check-station-id [m]
-  (or (and
-         (station-with-that-id-has-that-name (:departure_station_id m) (:departure_station m))
-         (station-with-that-id-has-that-name (:return_station_id m) (:return_station m)))
-        (println "failed check-station-id: " m)))
+(defn duration-too-short? [m]
+  (when-not (<= 10 (:duration m)) (str "bad or too short duration.")))
 
-(defn check-distance-and-duration [m]
-  (or (and (<= 10 (:distance m)) (<= 10 (:duration m)))
-      (println "bad or short distance or duration: " m)))
-  
+(defn distance-too-short? [m]
+  (let [dep (:departure m)
+           ret (:return m)]
+    (when-not (and (some? dep) (some? ret) (utils/is-at-least-ten-seconds-after? dep ret))
+      (str "return time is less than 10 seconds after departure time."))))
+
+(defn is-error-in-journey? [v m] 
+  (loop [fs v]
+    (if (seq fs)
+      (if-let [error ((first fs) m)] 
+        error
+        (recur (rest fs)))
+      false)))
+
+
 (defn import-journey! [m]
   (let [preprocessed-m
         (-> m
@@ -50,9 +60,11 @@
             (update :duration utils/convert-to-bigint-or-zero)
             (update :departure utils/convert-time)
             (update :return utils/convert-time))]
-    (if (and (check-station-id preprocessed-m) (check-distance-and-duration preprocessed-m))
-      (db/insert-row! (prepare-journey-row-for-import preprocessed-m)) 
-      0)))
+    (if-let [error (is-error-in-journey? [stations-not-exists? distance-too-short? duration-too-short?] preprocessed-m)]
+      0
+      (try 
+        (db/insert-row! (prepare-journey-row-for-import preprocessed-m))
+        (catch Exception e (do (println e) 0))))))
 
 
 (defn import-reducer [save-row!]

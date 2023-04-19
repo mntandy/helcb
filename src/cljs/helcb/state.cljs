@@ -49,7 +49,7 @@
          :msg {:text [:div [:p "Imported " (:imported result) " rows out of " (:line result) ". "]
                       [:p "The following lines were not imported:" [:br]
                       (apply str (first (:ignored result)) (map (fn [x y] (str x y)) (repeat ", ") (rest (:ignored result))))
-                      "."]]}
+                      ". Did you expect more lines to be imported? Duplicates and errorous entries are ignored."]]}
          :main-button (get button-options :explore)))
 
 (defn is-initial []

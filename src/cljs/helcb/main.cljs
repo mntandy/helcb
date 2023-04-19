@@ -14,7 +14,7 @@
      [notification]
      [importer]
      [explorer]
-     [station-view]
+     [:f> station-view]
      ])
 
 (dom/render

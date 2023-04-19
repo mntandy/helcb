@@ -4,19 +4,6 @@
 
 (def initial-settings {:name nil :offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
 
-
-(def test-rows-journeys 
-  [{:departure-id "094"
-    :departure-nimi "Laajalahden aukio"
-    :departure-name "Laajalahden aukio"
-    :departure-namn "Bredviksplatsen"
-    :return-id "100"
-    :return-nimi "Teljäntie"
-    :return-name "Teljäntie"
-    :return-namn "Täljevägen"
-    :distance "2043"
-    :duration "500"}])
-
 (def settings (r/atom initial-settings))
 
 (def rows (r/atom []))
@@ -49,8 +36,8 @@
 (defn update-filter-for-column! [column data-type]
   (fn [value]
     (if (contains? (filters) column)
-      (swap! settings assoc-in [:filters column :text] value)
-      (swap! settings assoc-in [:filters column] {:text value :option (first (filters/options-for-type data-type))}))))
+        (swap! settings assoc-in [:filters column :text] value)
+        (swap! settings assoc-in [:filters column] {:text value :option (first (filters/options-for-type data-type))}))))
 
 (defn update-filter-selector! [column value]
   (when (not= value "Filter")

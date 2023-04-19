@@ -40,14 +40,22 @@
   (str (first columns) " " (first types)
        (apply str (map #(str ", " %1 " " %2 "") (next columns) (next types)))))
 
+(defn columns-string [columns]
+  (str (first columns) (apply str (map str (repeat ", ") (next columns)))))
+
+(defn create-table [table key]
+  (let [columns (columns/for-db key name :key)
+        types (columns/for-db key :type)]
+  (create-new-table! {:name table 
+                      :columns (columns-string columns) 
+                      :columns-datatype (column-with-data-type-string columns types)})))
+
 (defn create-stations-table []
-  (create-new-table! {:name "stations" :columns (column-with-data-type-string (columns/for-db :stations name :key) (columns/for-db :stations :type))}))
-
+  (create-table "stations" :stations))
+  
 (defn create-journeys-table []
-  (create-new-table! {:name "journeys" :columns (column-with-data-type-string (columns/for-db :journeys name :key) (columns/for-db :journeys :type))}))
+  (create-table "journeys" :journeys))
 
-;departure_statistics  integer ARRAY [24]
-;return_statistics  integer ARRAY [24]
-
-;UPDATE stations SET departures [:i:hour] = departures [:i:hour] + 1
-;WHERE stationid = i:stationid
+(defn reset-journeys []
+  (drop-table! {:name "journeys"})
+  (create-journeys-table))

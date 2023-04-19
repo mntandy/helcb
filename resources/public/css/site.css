@@ -1,0 +1,23 @@
+
+.bar {
+    fill:hsl(204, 86%, 53%);
+    stroke: white;
+    stroke-width: 2;
+}
+
+.traffic {
+    border: 1px;
+}
+
+.line {
+    stroke:hsl(0, 0%, 29%);
+    stroke-width: 1;
+}
+
+.bartext {
+    font-weight: 100;
+}
+
+.bar:hover {
+    fill: red;
+  }

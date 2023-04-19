@@ -19,7 +19,8 @@
                  [com.layerware/hugsql "0.5.3"]
                  [reagent "1.0.0"]
                  [hiccup "1.0.5"]
-                 [cljs-ajax "0.8.1"]]
+                 [cljs-ajax "0.8.1"]
+                 [cljsjs/chartjs "3.9.1-0"]]
 
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]

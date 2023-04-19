@@ -29,6 +29,13 @@
           [st/string :message "Something is wrong with table name."]
           [{:validate (fn [s] (re-matches #"stations|journeys" s))} :message "there are only two options."]]})
 
+(def id-schema
+  {:id [[st/required :message "No id?"]
+        [st/string :message "Something is wrong with id."]]})
+
+(defn map-with-id [params]
+  (first (st/validate params id-schema)))
+
 (defn map-with-name [params]
   (first (st/validate params name-schema)))
 
@@ -64,6 +71,9 @@
 (defn rows [params]
   (first (st/validate params rows-schema)))
 
+(defn station-traffic [_]
+  nil)
+
 (def update-station-schema
   {:id [[st/required :message "No db-id."]
           [st/number-str :message "Something is wrong with ID."]]
@@ -85,3 +95,4 @@
   (case route
     "/update-station" (constantly nil)
     ("/import-journeys" "/import-stations") csv-import-success))
+

@@ -5,7 +5,7 @@
 
 (defn remove-BOM [seq]
   (if (= (int (first seq)) 65279)
-    (rest seq)
+    (subs seq 1)
     seq))
 
 (defn get-labels [first-line]
