@@ -12,5 +12,6 @@
                         addTo @stationsmap.state/leaflet-map)) (array []))
   [:div
    [:div.columns.is-centered.m-3 [:div {:style {:position "relative" :z-index "0" :width @stationsmap.state/map-width} :id "map"}]]
-   (when-not @stationsmap.state/map-added 
-     [:div.columns.is-centered.m-3 [:a {:on-click stationsmap.state/add-stations-to-map} "Add every station to the map"]])])
+   (if-not @stationsmap.state/stations-added 
+     [:div.columns.is-centered.m-3 [:a {:on-click stationsmap.state/add-stations-to-map} "Add stations to map"]]
+     [:div.columns.is-centered.m-3 [:a {:on-click stationsmap.state/remove-stations-from-map} "Remove stations from map"]])])
