@@ -3,7 +3,7 @@
             [helcb.notification :refer [notification]]
             [helcb.import.main :refer [importer]]
             [helcb.explore.main :refer [explorer]]
-            [helcb.station.main :refer [station-view]]
+            [helcb.stations :refer [station-view]]
             [helcb.stationsmap.main :refer [stationsmap]]
             [helcb.state :as state]
             [helcb.menu :refer [menu]]))

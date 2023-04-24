@@ -4,7 +4,7 @@
             [helcb.http :as http]
             [helcb.filters :as filters]))
 
-(def initial-settings {:offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
+(def initial-settings {:offset 0 :got-all false :limit 10 :sort-by-column "" :sort-direction ""})
 
 (def settings (r/atom initial-settings))
 
@@ -65,7 +65,6 @@
   (assoc (select-keys @settings [:sort-by-column :sort-direction :filters :offset :limit])
                  :offset (if reset "0" (str (:offset @settings)))
                  :limit (if add-offset-to-limit (str (+ (:limit @settings) (:offset @settings))) (str (:limit @settings)))))
-
 
 (defn get-data! [reset add-offset-to-limit]
   (http/get :data (assoc (prepare-for-request reset add-offset-to-limit)

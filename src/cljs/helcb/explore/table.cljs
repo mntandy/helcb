@@ -2,7 +2,7 @@
   (:require 
    [helcb.state :as state]
    [helcb.explore.state :as explore.state]
-   [helcb.station.state :as station.state]
+   [helcb.stations :as stations]
    [helcb.filters :as filters]
    [helcb.language :as language]
    [helcb.commons :as commons]))
@@ -28,12 +28,12 @@
 
 (defn select-station-with-row [row text]
   [:a {:on-click 
-       (fn [] (station.state/initialise-with-row! row))}
+       (fn [] (stations/initialise-with-id! (:stationid row)))}
    text])
 
 (defn select-station-with-id [id text]
   [:a {:on-click
-       (fn [] (station.state/initialise-with-id! id))}
+       (fn [] (stations/initialise-with-id! id))}
    text])
 
 (defn link-to-station [row type key text]

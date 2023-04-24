@@ -1,10 +1,7 @@
 (ns helcb.commons)
 
 (defn button [value on-click]
-  [:input.button
-   {:type :submit
-    :value value
-    :on-click on-click}])
+  [:button.button {:on-click on-click} value])
 
 
 (defn input

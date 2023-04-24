@@ -1,17 +1,17 @@
 (ns helcb.stationsmap.state
   (:require
    [helcb.http :as http]
-   [helcb.station.state :as station.state]
+   [helcb.stations :as stations]
    [reagent.core :as r]))
 
 (def leaflet-map (r/atom nil))
 (def map-width (r/atom 400))
-(def stations-added (r/atom false))
+(def stations-display (r/atom false))
 (def stations-markers (r/atom nil))
 (def stations-layer (r/atom nil))
 
 (defn gotostation [id]
-  (helcb.station.state/initialise-with-id! id))
+  (helcb.stations/initialise-with-id! id))
 
 (defn to-float [s]
   (. js/Number parseFloat s))
@@ -33,11 +33,11 @@
   (reset! stations-layer (. js/L layerGroup (create-stations-markers data))))
 
 (defn add-stations-layer-to-map []
-  (reset! stations-added true)
+  (reset! stations-display true)
   (. @stations-layer addTo @leaflet-map))
 
-(defn remove-stations-from-map []
-  (reset! stations-added false)
+(defn hide-stations []
+  (reset! stations-display false)
   (. @stations-layer remove @leaflet-map))
 
 (defn download-stations-for-map [add-to-map]
@@ -47,7 +47,7 @@
      (create-stations-layer (:stations data))
      (when add-to-map (add-stations-layer-to-map)))))
   
-(defn add-stations-to-map []
+(defn show-stations []
   (if (empty? @stations-markers)
     (download-stations-for-map true)
     (add-stations-layer-to-map)))

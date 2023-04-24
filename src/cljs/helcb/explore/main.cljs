@@ -1,7 +1,6 @@
 (ns helcb.explore.main
   (:require 
    [helcb.explore.table :refer [table get-more-rows]]
-   [helcb.language :as language]
    [helcb.state :as state]))
 
 (defn explorer []
@@ -9,5 +8,5 @@
     [:div
      [:div.columns.is-centered
       [table]]
-     [:div.columns.is-centered
+     [:div.columns.is-centered.m-5
       [get-more-rows]]]))

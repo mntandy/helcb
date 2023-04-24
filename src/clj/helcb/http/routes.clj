@@ -42,9 +42,12 @@
 
 (defn get-station-info [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
+    (println params)
     (response/ok (check-for-errors-and-reply params validate/map-with-id
-                                             (fn [m] {:row (station-by-stationid (:id m))
-                                                      :traffic (average-trips-to-and-from-station (:id m))})))))
+                                             (fn [m] (let [l {:row (station-by-stationid (:id m))
+                                                              :traffic (average-trips-to-and-from-station (:id m))}]
+                                                       (println l)
+                                                       l))))))
 
 (defn get-traffic [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]

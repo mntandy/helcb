@@ -2,16 +2,6 @@
   (:require
    [reagent.core :as r]))
 
-
-(def selector-options
-  {:initial "What do you want to do?"
-   :explore-journeys "Explore journeys"
-   :explore-stations "Explore stations"
-   :add-single-journey "Add a single journey"
-   :add-multiple-journeys "Add multiple journeys"
-   :add-single-station "Add single station"
-   :add-multiple-stations "Add multiple stations"})
-
 (def initial-state {:msg nil 
                     :display :initial})
 
@@ -27,10 +17,8 @@
   (swap! state assoc :msg {:error nil :text text}))
 
 (defn is-importing [x]
-  (some #{x} [:add-single-journey
-              :add-multiple-journeys
-              :add-single-station
-              :add-multiple-stations]))
+  (some #{x} [:add-journeys
+              :add-stations]))
 
 (defn is-exploring [x] 
   (some #{x} [:explore-journeys 
