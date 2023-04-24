@@ -1,6 +1,7 @@
 (ns helcb.explore.main
   (:require 
    [helcb.explore.table :refer [table get-more-rows]]
+   [helcb.language :as language]
    [helcb.state :as state]))
 
 (defn explorer []

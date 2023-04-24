@@ -7,6 +7,10 @@
    [helcb.columns :as columns]
    [helcb.clj-utils :as utils]))
 
+(defn print-and-return-file-error [e]
+  (println (.getMessage e))
+  {:error "Something's wrong with the file. Does it exist? Is it a CSV file? Go find out!"})
+
 (defn update-stationid [m]
   (update m :stationid utils/trim-leading-zeros))
 
@@ -15,11 +19,6 @@
         result (merge (zipmap (columns/for-db :stations :key) (repeat ""))
                       (update-stationid (rename-keys m label->key)))]
     {:name "stations" :column-names (map name (keys result)) :column-values (vals result)}))
-
-(defn stations-from-csv [params]
-  (csv/import-from-uri (:uri params) (:sep params)
-                         #(run! (comp db/insert-row! prepare-station-row-for-import) %)
-                         (columns/for-db :stations :label)))
 
 (defn prepare-journey-row-for-import [m] 
   (let [result (merge (zipmap (columns/for-db :journeys :key) (repeat "")) 
@@ -49,7 +48,6 @@
         (recur (rest fs)))
       false)))
 
-
 (defn import-journey! [m]
   (let [preprocessed-m
         (-> m
@@ -66,6 +64,10 @@
         (db/insert-row! (prepare-journey-row-for-import preprocessed-m))
         (catch Exception e (do (println e) 0))))))
 
+(defn import-station! [m]
+  (try
+    (db/insert-row! (prepare-station-row-for-import m))
+    (catch Exception e (do (println e) 0))))
 
 (defn import-reducer [save-row!]
   (fn [col]
@@ -80,10 +82,6 @@
              {:line 0 :ignored [] :imported 0}
              col)))
 
-(defn print-and-return-file-error [e]
-  (println (.getMessage e))
-  {:error "Something's wrong with the file. Does it exist? Is it a CSV file? Go find out!"})
-
 (defn journeys-from-csv [params]
   (try
     {:result (csv/import-from-uri (:uri params) (:sep params)
@@ -91,3 +89,9 @@
                                   (columns/for-import :journeys :label))}
     (catch Exception e (print-and-return-file-error e))))
 
+(defn stations-from-csv [params]
+  (try
+    {:result (csv/import-from-uri (:uri params) (:sep params)
+                                  (import-reducer import-station!)
+                                  (columns/for-db :stations :label))}
+    (catch Exception e (print-and-return-file-error e))))

@@ -21,7 +21,6 @@
               [st/map :message "Something went wrong with the import"]]})
 
 (defn csv-import-success [params]
-  (println params)
   (first (st/validate params csv-import-success-schema)))
 
 (def name-schema
@@ -72,6 +71,12 @@
   (first (st/validate params rows-schema)))
 
 (defn station-traffic [_]
+  nil)
+
+(defn station-info [_]
+  nil)
+
+(defn stations-for-map [_]
   nil)
 
 (def update-station-schema

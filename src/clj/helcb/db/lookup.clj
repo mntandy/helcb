@@ -65,7 +65,10 @@
 (defn station-exists? [id]
   (boolean (:count (first (db/count-rows-with-value {:name "stations" :column "stationid" :value id})))))
 
-(defn station-from-stationid [id]
+(defn stations-for-map []
+  (db/get-stations-for-map))
+
+(defn station-by-stationid [id]
   (first (db/get-rows-with-value {:name "stations" :column "stationid" :value id})))
 
 (defn get-all-entries-with-filter [params]

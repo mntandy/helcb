@@ -1,21 +1,22 @@
 (ns helcb.main
   (:require [reagent.dom :as dom]
-            [helcb.select :refer [select]]
             [helcb.notification :refer [notification]]
             [helcb.import.main :refer [importer]]
             [helcb.explore.main :refer [explorer]]
             [helcb.station.main :refer [station-view]]
-            [helcb.state :as state]))
+            [helcb.stationsmap.main :refer [stationsmap]]
+            [helcb.state :as state]
+            [helcb.menu :refer [menu]]))
 
 (defn main []
   (println @state/state)
   [:div
-     [select]
-     [notification]
-     [importer]
-     [explorer]
-     [:f> station-view]
-     ])
+   [menu] 
+   [notification]
+   [:f> stationsmap]
+   [importer]
+   [explorer]
+   [station-view]])
 
 (dom/render
  [main]

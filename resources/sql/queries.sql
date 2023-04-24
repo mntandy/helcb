@@ -36,6 +36,9 @@ SELECT * FROM :i:table-name :sql:filters :sql:sort LIMIT :i:limit OFFSET :i:offs
 --:name get-from-table-no-limit-no-offset :? :*
 SELECT * FROM :i:table-name :sql:filters :sql:sort
 
+--:name get-stations-for-map :? :*
+SELECT stationid, name, x, y FROM stations
+
 --:name get-journeys-with-station-names :? :*
 SELECT 
 journeys.*,

@@ -6,7 +6,7 @@
    [helcb.http.middleware :as middleware]
    [helcb.db.import :as db.import]
    [helcb.db.update :as db.update]
-   [helcb.db.lookup :refer [look-up average-trips-to-and-from-station]]))
+   [helcb.db.lookup :refer [station-by-stationid look-up average-trips-to-and-from-station stations-for-map]]))
 
 (defn html-handler [_]
   (response/ok
@@ -40,10 +40,19 @@
     (response/ok (check-for-errors-and-reply params validate/data-request
                                              (fn [m] {:rows (look-up m)})))))
 
+(defn get-station-info [{:keys [path-params]}]
+  (let [params (edn/read-string (:data path-params))]
+    (response/ok (check-for-errors-and-reply params validate/map-with-id
+                                             (fn [m] {:row (station-by-stationid (:id m))
+                                                      :traffic (average-trips-to-and-from-station (:id m))})))))
+
 (defn get-traffic [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
     (response/ok (check-for-errors-and-reply params validate/map-with-id
                                              (fn [m] {:traffic (average-trips-to-and-from-station (:id m))})))))
+
+(defn get-stations-for-map [_]
+  (response/ok {:stations (stations-for-map)}))
 
 (def routes
   [""
@@ -52,6 +61,7 @@
    ["/import-stations" {:post import-stations}]
    ["/import-journeys" {:post import-journeys}]
    ["/update-station" {:post update-station}]
+   ["/stations-for-map/" {:get get-stations-for-map}]
    ["/station-traffic/:data" {:get get-traffic}]
-   ["/data/:data" {:get get-data}]
-   ])
+   ["/station-info/:data" {:get get-station-info}]
+   ["/data/:data" {:get get-data}]])

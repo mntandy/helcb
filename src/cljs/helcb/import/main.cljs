@@ -2,30 +2,26 @@
   (:require 
    [helcb.state :as state]
    [helcb.import.state :as import.state]
-   [helcb.language :as language]
-   [helcb.http :as http]))
+   [helcb.commons :as commons]))
 
-(defn text-input [name update! value disabled]
-  [:label.label {:for name} name]
-  [:input.input
-   {:type :text
-    :name name
-    :on-change #(update! (-> % .-target .-value))
-    :value value
-    :disabled disabled}])
-
-(defn uri-and-separator []
+(defn uri-and-separator [columns route]
   [:div.columns
    [:div.column.is-offset-4.is-3
     [:div.field
      [:label.label "Address to CSV-file:"]
-     [text-input "Uri" (import.state/update! :uri) @import.state/uri @import.state/success]]]
+     [commons/text-input 
+      "Uri" 
+      @import.state/uri 
+      (import.state/update! :uri) 
+      #(import.state/submit-csv! columns route) 
+      nil 
+      @import.state/importing]]]
    [:div.column.is-1
     [:div.control [:label.label {:for :options} "Separator:"]
      [:div.select.is-normal
       [:select {:value @import.state/sep
                 :name :options
-                :disabled @import.state/success
+                :disabled @import.state/importing
                 :on-change #((import.state/update! :sep) (-> % .-target .-value))}
        [:option {:value \,} "Comma (,)"]
        [:option {:value \;} "Semi-colon (;)"]]]]]])
@@ -35,42 +31,31 @@
    [:input.button
     {:type :submit
      :value "Import!"
-     :disabled @import.state/success
-     :on-click (when-not @import.state/success on-click)}]])
+     :disabled @import.state/importing
+     :on-click (when-not @import.state/importing on-click)}]])
 
-(defn single-importer [type]
-  (let [columns (language/table-display type)] 
+(defn heading [text]
+  [:div.columns.is-centered>section>div.m-5>p.title text])
+
+(def options 
+  {:import-journeys
+   {:columns :journeys
+    :text "Import journeys"
+    :route "/import-journeys"}
+   :import-stations 
+   {:columns :stations
+    :text "Import stations"
+    :route "/import-stations"}})
+
+(defn multi-importer []
+  (when-let [{text :text
+              route :route
+              columns :columns} (get options @state/display nil)]
+    (println @import.state/import-data)
     [:div
-     [:div.block
-      [:div.columns.is-centered.m-3
-       [:table.table.is-bordered
-        [:thead>tr [:th [:i "Headers"]]
-         (for [{key :key label :label} columns]
-           [:th {:key key} label])]
-        [:tbody
-         (into [:tr [:td [:i "Data"]]]
-               (for [{key :key} columns]
-                 [:td {:key key}
-                  [text-input key (import.state/update-column! key) (get @import.state/columns (keyword key)) false]]))]]]]
-     [import-button #(http/post-import-columns! type @import.state/columns)]]))
-   
-(defn import-csv! [route]
-  (http/post! route (import.state/csv) (fn [response]
-                                         (import.state/success!)
-                                         (state/csv-import-success! response))))
-
-(defn multi-importer [type]
-  [:div
-  [uri-and-separator]
-  [import-button #(import-csv! (case type
-                   :journeys "/import-journeys"
-                   :stations "/import-stations"))]])
+     [heading text]
+     [uri-and-separator columns route]
+     [import-button #(import.state/submit-csv! columns route)]]))
 
 (defn importer []
-  (case @state/display
-     :add-single-journey [single-importer :journeys]
-     :add-multiple-journeys [multi-importer :journeys]
-     :add-single-station [single-importer :stations]
-     :add-multiple-stations [multi-importer :stations]
-    nil))
-
+  [multi-importer])

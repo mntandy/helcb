@@ -1,8 +1,10 @@
 (ns helcb.explore.state
   (:require [reagent.core :as r]
+            [helcb.state :as state]
+            [helcb.http :as http]
             [helcb.filters :as filters]))
 
-(def initial-settings {:name nil :offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
+(def initial-settings {:offset 0 :got-all false :limit 3 :sort-by-column "" :sort-direction ""})
 
 (def settings (r/atom initial-settings))
 
@@ -12,18 +14,8 @@
   (reset! settings initial-settings)
   (reset! rows []))
 
-(defn set-name [type]
-  (swap! settings assoc :name 
-         (case type 
-           :explore-journeys "journeys"
-           :explore-stations "stations"
-           nil)))
-
 (defn filters []
   (get @settings :filters))
-
-(defn add-limit-to-offset []
-  (swap! settings update :offset + (:limit @settings)))
 
 (defn update-sorting! [column]
   (if (not= (:sort-by-column @settings) column)
@@ -70,6 +62,28 @@
                  ""))))
 
 (defn prepare-for-request [reset add-offset-to-limit]
-  (assoc (select-keys @settings [:name :sort-by-column :sort-direction :filters :offset :limit])
+  (assoc (select-keys @settings [:sort-by-column :sort-direction :filters :offset :limit])
                  :offset (if reset "0" (str (:offset @settings)))
                  :limit (if add-offset-to-limit (str (+ (:limit @settings) (:offset @settings))) (str (:limit @settings)))))
+
+
+(defn get-data! [reset add-offset-to-limit]
+  (http/get :data (assoc (prepare-for-request reset add-offset-to-limit)
+                            :name (case @state/display
+                                    :explore-journeys "journeys"
+                                    :explore-stations "stations"
+                                    nil)) 
+            #(update-rows! (:rows %) reset)))
+
+(defn get-filtered-data []
+  (if-let [element (filters/first-without-option (filters))]
+    (state/set-error-message! (str "\"Filter\" is not a kind of filter for " (filter-text-for-column element) "."))
+    (get-data! true true)))
+
+(defn download-initial-explorer-data []
+  (get-data! true false))
+
+(defn add-limit-to-offset-and-get-data []
+  (swap! settings update :offset + (:limit @settings))
+  (get-data! false false))
+
