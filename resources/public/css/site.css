@@ -26,3 +26,24 @@
     width: 300px;
     height: 300px;
 }
+
+.stationlink {
+    position: relative;
+    display: inline-block;
+}
+  
+.stationlink .stationtip {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .stationlink:hover .stationtip {
+    visibility: visible;
+  }

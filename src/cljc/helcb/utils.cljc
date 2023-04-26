@@ -21,6 +21,9 @@
                  (first next-paths)
                  (lazy-flatten-map (concat (rest next-paths) next-stack) m)))))))))))
 
-
 (defn all-vals [m]
   (map #(get-in m %) (lazy-flatten-map m)))
+
+(defn seq-to-text [col]
+  (apply str (first col)
+         (map (fn [x y] (str x y)) (repeat ", ") (rest col))))

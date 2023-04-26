@@ -3,16 +3,26 @@
             [helcb.state :as state]
             [helcb.http :as http]
             [helcb.columns :as columns]
+            [helcb.leaflet-utils :as leaflet]
             [helcb.commons :as commons]))
 
 (def stations (r/atom {}))
+
+(defn reset-to-initial! []
+  (reset! stations {}))
 
 (defn remove-station! [id]
   (swap! stations dissoc id))
 
 (defn initialise-with-id! [id]
   (when-not (contains? @stations id)
-    (http/get :station-info {:id id} #(swap! stations assoc id {:traffic (:traffic %) :row (:row %)}))))
+    (http/get :station-info 
+              {:id id} 
+              #(swap! stations assoc id {:traffic (:traffic %) :row (:row %)})
+              #(state/set-error-message! %))))
+
+(defn openstation [id]
+  (initialise-with-id! id))
 
 (def tabs-options 
   [[:from-weekends "Departures" "weekends"]
@@ -77,7 +87,8 @@
               (fn [_]
                 (swap! stations assoc-in [stationid :edit] nil)
                 (swap! stations assoc-in [stationid :row key] (:value data))
-                (state/set-message! "Update successful!"))))
+                (state/set-message! "Update successful!"))
+              #(state/set-error-message! %)))
 
 (defn set-edit-value! [stationid value]
   (swap! stations assoc-in [stationid :edit-value] value))
@@ -110,7 +121,9 @@
         {stationid :stationid
          name :name
          osoite :osoite
-         kaupunki :kaupunki} (:row data)]
+         kaupunki :kaupunki
+         x :x
+         y :y} (:row data)]
     [:article.message
      [:div.message-header.has-background-white-ter.has-text-grey-dark
       [:p (str "Station " stationid ": " name)]
@@ -119,6 +132,8 @@
       [:div.columns.m-3
       [:div.column "Address: " osoite " " kaupunki] 
       [:div.column.has-text-right
+       [commons/button "Show on map"
+        (fn [] (leaflet/goto-station stationid name x y))]
        [commons/button
         (if display-edit "Close edit" "Edit info")
         (fn []
@@ -126,7 +141,7 @@
       (when display-edit (edit-table id (get data :row nil)))
       [traffic-canvas id (get data :traffic nil)]]]))
 
-(defn station-view []
+(defn main []
   (println @stations)
   (into [:div] 
         (for [batch (partition 3 3 nil @stations)]

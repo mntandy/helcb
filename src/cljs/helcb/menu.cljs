@@ -1,18 +1,21 @@
 (ns helcb.menu  
   (:require 
    [helcb.state :as state]
-   [helcb.import.state :as import.state]
-   [helcb.explore.state :as explore.state]))
+   [helcb.importer :as importer]
+   [helcb.stations :as stations]
+   [helcb.explorer :as explorer]
+   [helcb.leaflet-utils :as leaflet]))
 
 (defn reset-everything []
   (state/reset-to-initial!)
-  (import.state/reset-to-initial!)
-  (explore.state/reset-to-initial!))
+  (importer/reset-to-initial!)
+  (stations/reset-to-initial!)
+  (explorer/reset-to-initial!)
+  (leaflet/hide-every-station))
 
 (defn set-explore! [state]
   (state/update-state! state)
-  (explore.state/reset-to-initial!)
-  (explore.state/download-initial-explorer-data))
+  (explorer/initialise))
 
 (defn menu []
 [:div.columns.is-centered.m-5

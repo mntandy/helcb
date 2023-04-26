@@ -16,10 +16,6 @@
 (defn set-message! [text]
   (swap! state assoc :msg {:error nil :text text}))
 
-(defn is-importing [x]
-  (some #{x} [:add-journeys
-              :add-stations]))
-
 (defn is-exploring [x] 
   (some #{x} [:explore-journeys 
               :explore-stations]))
@@ -31,6 +27,9 @@
   (swap! state assoc
          :msg nil
          :display x))
+
+(defn reset-display! []
+  (swap! state assoc :display :initial))
 
 (defn reset-to-initial! []
   (reset! state initial-state))

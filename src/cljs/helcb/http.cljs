@@ -1,26 +1,25 @@
 (ns helcb.http
   (:require
    [ajax.core :refer [GET POST]]
-   [helcb.state :as state]
    [helcb.validation :as validate]
    [helcb.utils :refer [all-vals]]))
 
-(defn check-for-errors [data validator]
+(defn check-for-errors [data validator error!]
   (if (contains? data :error)
-    (state/set-error-message! (str "from server: " (:error data)))
+    (error! (str "from server: " (:error data)))
     (when-let [errors (validator data)]
-      (state/set-error-message! (all-vals errors)))))
+      (error! (all-vals errors)))))
 
-(defn post! [route data success]
+(defn post! [route data success error!]
   (if-let [errors ((validate/post route) data)]
-    (state/set-error-message! (all-vals errors))
+    (error! (all-vals errors))
     (POST route
       {:format :json
        :headers
        {"accept" "application/transit+json"}
        :params data
-       :handler #(when-not (check-for-errors % (validate/response route)) (success (:result %)))
-       :error-handler #(state/set-error-message! (str "From server: " %))})))
+       :handler #(when-not (check-for-errors % (validate/response route) error!) (success (:result %)))
+       :error-handler #(error! (str "From server: " %))})))
 
 (def routes
   {:data
@@ -36,10 +35,10 @@
    {:route "/stations-for-map/"
     :validator validate/stations-for-map}})
 
-(defn get [route-key data update]
+(defn get [route-key data update error!]
   (let [{route :route
          validator :validator} (route-key routes)]
     (GET (str route data)
       {:headers {"accept" "application/transit+json"}
-       :handler #(when-not (check-for-errors % validator)
+       :handler #(when-not (check-for-errors % validator error!)
                    (update %))})))

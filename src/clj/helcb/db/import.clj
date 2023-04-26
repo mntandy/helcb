@@ -31,10 +31,10 @@
              (db.lookup/station-exists? (:return_station_id m)))
     (str "something is wrong with the station ids: " (:departure_station_id m) (:return_station_id m))))
 
-(defn duration-too-short? [m]
-  (when-not (<= 10 (:duration m)) (str "bad or too short duration.")))
-
 (defn distance-too-short? [m]
+  (when-not (<= 10 (:distance m)) (str "bad or too short distance.")))
+
+(defn duration-too-short? [m]
   (let [dep (:departure m)
            ret (:return m)]
     (when-not (and (some? dep) (some? ret) (utils/is-at-least-ten-seconds-after? dep ret))
