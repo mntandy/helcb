@@ -1,36 +1,20 @@
 # helcb
 
-FIXME: description
+An SPA webapp to explore CityBike journeys in Helsinki. Backend is written in Clojure utilsing Conman and Jetty, Frontend in Clojurescript with Reagent and React.
+
+Work in progress.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+We will see.
 
 ## Usage
 
-FIXME: explanation
-
     $ java -jar helcb-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
-Copyright © 2023 FIXME
+Copyright © 2023 Andreas Fjellstad
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
