@@ -1,6 +1,6 @@
 # helcb
 
-An SPA webapp to explore CityBike journeys in Helsinki. Backend is written in Clojure utilsing Conman and Jetty, Frontend in Clojurescript with Reagent and React.
+An SPA to explore CityBike journeys in Helsinki. Backend is written in Clojure utilsing Conman and Jetty, Frontend in Clojurescript with Reagent and React.
 
 Work in progress.
 
