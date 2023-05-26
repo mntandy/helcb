@@ -16,10 +16,6 @@
 (defn set-message! [text]
   (swap! state assoc :msg {:error nil :text text}))
 
-(defn is-exploring [x] 
-  (some #{x} [:explore-journeys 
-              :explore-stations]))
-
 (defn close-msg! []
   (swap! state assoc :msg nil))
 

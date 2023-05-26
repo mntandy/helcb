@@ -1,5 +1,6 @@
 (ns helcb.leaflet-utils
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [leaflet :as L]))
 
 (def leaflet-map (r/atom nil))
 
@@ -14,9 +15,17 @@
 (defn popup-html [name stationid]
   (str "<b>" name "</b><br /><a onclick='helcb.stations.openstation(\"" stationid "\")'>Open station info</a><br />"))
 
-(defn create-marker [stationid name x y]
-             (. (. js/L marker (array (. js/Number parseFloat y) (. js/Number parseFloat x)))
-                bindPopup (popup-html name stationid)))
+(defn display-journey [x1 y1 x2 y2]
+  (println "displaying")
+  (. @leaflet-map fitBounds (. (. (. js/L polyline
+                                    (array (array (. js/Number parseFloat y1), (. js/Number parseFloat x1)) (array (. js/Number parseFloat y2), (. js/Number parseFloat x2)))
+                                    #js {:color "red"}) 
+                                 addTo @leaflet-map) 
+                              getBounds)))
+
+(defn create-marker [stationid name x y] 
+  (. (. js/L marker (array (. js/Number parseFloat y) (. js/Number parseFloat x)))
+       bindPopup (popup-html name stationid)))
 
 (defn clear-some-stations-layer []
   (when (and @some-stations-layer @leaflet-map)
@@ -28,7 +37,7 @@
   (set-stations-display! :every-station)
   (. @every-station-layer addTo @leaflet-map))
 
-(defn hide-every-station []
+(defn hide-every-station [] 
   (set-stations-display! :initial)
   (when (and @every-station-layer @leaflet-map)
     (. @every-station-layer remove @leaflet-map)))
@@ -75,7 +84,7 @@
 
 (defn initialise-map []
   (reset! leaflet-map (. (. js/L map "map") setView #js [60.1661, 24.9458] 13))
-  (. (. js/L tileLayer "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-      #js {:maxZoom 19 :attribution "<a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>"})
+  (. (. js/L tileLayer "https://tile.openstreetmap.org/{z}/{x}/{y}.png", 
+        #js {:maxZoom 19 :attribution "<a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>"})
    addTo @leaflet-map))
 

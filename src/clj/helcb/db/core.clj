@@ -2,16 +2,21 @@
   (:require
    [next.jdbc.date-time]
    [next.jdbc.result-set]
+   [clojure.java.jdbc :as jdbc]
    [mount.core :as mount]
    [conman.core :as conman]
    [helcb.columns :as columns]
+   [clojure.string :as str]
    [helcb.config :refer [env]]))
 
 (mount/defstate ^:dynamic *db*
   :start (conman/connect! {:jdbc-url (env :database-url)})
   :stop (conman/disconnect! *db*))
 
-(conman/bind-connection *db* "sql/queries.sql")
+(defn rebind []
+  (conman/bind-connection *db* "sql/queries.sql"))
+
+(rebind)
 
 (defn timestamp-sql->java [t]
   (-> t
@@ -35,20 +40,12 @@
   (read-column-by-index [^java.sql.Time v _2 _3]
     (.toLocalTime v)))
 
-
-(defn column-with-data-type-string [columns types]
-  (str (first columns) " " (first types)
-       (apply str (map #(str ", " %1 " " %2 "") (next columns) (next types)))))
-
-(defn columns-string [columns]
-  (str (first columns) (apply str (map str (repeat ", ") (next columns)))))
-
 (defn create-table [table key]
   (let [columns (columns/for-db key name :key)
         types (columns/for-db key :type)]
   (create-new-table! {:name table 
-                      :columns (columns-string columns) 
-                      :columns-datatype (column-with-data-type-string columns types)})))
+                      :columns (str/join ", " columns) 
+                      :columns-datatype (str/join ", " (map #(str %1 " " %2) columns types))})))
 
 (defn create-stations-table []
   (create-table "stations" :stations))
@@ -59,3 +56,5 @@
 (defn reset-journeys []
   (drop-table! {:name "journeys"})
   (create-journeys-table))
+
+

@@ -41,11 +41,11 @@
                    "WHERE " (produce-str type :null key val)
                    (mapv (fn [[k v]] (str (produce-str type connective k v))) (rest vec))))))
 
-(defn zero< [s]
+(defn zero-< [s]
   (< 0 (count s)))
 
 (defn sort-string [sort-direction sort-by]
-  (if (and (zero< sort-direction) (zero< sort-by))
+  (if (and (zero-< sort-direction) (zero-< sort-by))
     (str "ORDER BY " sort-by " " sort-direction)
     ""))
 
@@ -63,13 +63,21 @@
       (db/get-from-table (generate-lookup-map params :and))))
 
 (defn station-exists? [id]
-  (boolean (:count (first (db/count-rows-with-value {:name "stations" :column "stationid" :value id})))))
+  (not= 0 (:count (first (db/count-rows-with-value {:name "stations" :column "stationid" :value id})))))
 
 (defn stations-for-map []
   (db/get-stations-for-map))
 
 (defn station-by-stationid [id]
   (first (db/get-rows-with-value {:name "stations" :column "stationid" :value id})))
+
+(defn get-top-five-return-and-departure [id]
+  (let [weekends "AND extract (dow from departure) NOT BETWEEN 1 and 5"
+        weekdays "AND extract (dow from departure) BETWEEN 1 and 5"]
+  {:from-weekends (db/get-top-five-departure-with-station-names {:return_station_id id :days weekends})
+   :from-weekdays (db/get-top-five-departure-with-station-names {:return_station_id id :days weekdays}) 
+   :to-weekends (db/get-top-five-return-with-station-names {:departure_station_id id :days weekends})
+   :to-weekdays (db/get-top-five-return-with-station-names {:departure_station_id id :days weekdays})}))
 
 (defn get-all-entries-with-filter [params]
   (db/get-from-table-no-limit-no-offset (generate-lookup-map params :and)))
@@ -93,32 +101,14 @@
 (defn hour-as-key-and-average [d]
   (fn [m] [(int (:extract m)) (float (with-precision 2 (/ (:count m) (bigdec d))))]))
 
-(defn average-trips-per-hour-from-station-during-weekdays [id]
+(defn average-trips [days-in-db db-func m]
   (into (sorted-map) 
         (map
-         (hour-as-key-and-average (weekdays-in-db))
-         (db/count-journeys-per-hour-from-station-during-weekdays {:departure_station_id id}))))
-
-(defn average-trips-per-hour-from-station-during-weekends [id]
-  (into (sorted-map) 
-        (map
-         (hour-as-key-and-average (weekend-days-in-db))
-         (db/count-journeys-per-hour-from-station-during-weekends {:departure_station_id id}))))
-
-(defn average-trips-per-hour-to-station-during-weekdays [id]
-  (into (sorted-map) 
-        (map
-         (hour-as-key-and-average (weekdays-in-db))
-         (db/count-journeys-per-hour-to-station-during-weekdays {:return_station_id id}))))
-
-(defn average-trips-per-hour-to-station-during-weekends [id]
-  (into (sorted-map) 
-        (map
-         (hour-as-key-and-average (weekend-days-in-db))
-         (db/count-journeys-per-hour-to-station-during-weekends {:return_station_id id}))))
+         (hour-as-key-and-average (days-in-db))
+         (db-func m))))
 
 (defn average-trips-to-and-from-station [id]
-  {:to-weekends (average-trips-per-hour-to-station-during-weekends id)
-   :to-weekdays (average-trips-per-hour-to-station-during-weekdays id)
-   :from-weekends (average-trips-per-hour-from-station-during-weekends id)
-   :from-weekdays (average-trips-per-hour-from-station-during-weekdays id)})
+  {:to-weekends (average-trips weekend-days-in-db db/count-journeys-per-hour-to-station-during-weekends {:return_station_id id})
+   :to-weekdays (average-trips weekdays-in-db db/count-journeys-per-hour-to-station-during-weekdays {:return_station_id id})
+   :from-weekends (average-trips weekend-days-in-db db/count-journeys-per-hour-from-station-during-weekends {:departure_station_id id})
+   :from-weekdays (average-trips weekdays-in-db db/count-journeys-per-hour-from-station-during-weekdays {:departure_station_id id})})

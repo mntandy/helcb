@@ -1,7 +1,19 @@
+-- :name set-datestyle-to-German :! :n
+SET DATESTYLE = German
+
+-- :name dump-journeys :! :n
+COPY journeys TO 'journeys_db.csv' DELIMITER ',' CSV HEADER;
+
 -- :name insert-row! :! :n
 INSERT INTO :i:name
 (:i*:column-names)
 VALUES (:v*:column-values)
+ON CONFLICT DO NOTHING
+
+-- :name insert-rows! :! :n
+INSERT INTO :i:name
+(:i*:column-names)
+VALUES :t*:column-values
 ON CONFLICT DO NOTHING
 
 -- :name update-column-in-row! :! :n
@@ -9,20 +21,11 @@ UPDATE :i:name
 SET :i:column = :value
 WHERE id = :id
 
--- :name get-columns :? :*
-SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = :name
-
---:name get-first-row :? :*
-select * from :i:name LIMIT '1'
-
 --:name get-rows-with-value
 SELECT * FROM :i:name WHERE :i:column = :value;
 
 --:name count-rows-with-value
 SELECT COUNT(*) FROM :i:name WHERE :i:column = :value;
-
---:name get-every-row-from-table :? :*
-SELECT * from :i:name
 
 --:name get-from-table-ascending-where :? :*
 SELECT * FROM :i:name :sql:filters ORDER BY :i:sort-by ASC LIMIT :i:limit OFFSET :i:offset
@@ -52,14 +55,35 @@ FROM journeys JOIN stations departure ON departure.stationid = journeys.departur
 JOIN stations return ON return.stationid = journeys.return_station_id
 :sql:filters :sql:sort LIMIT :i:limit OFFSET :i:offset
 
---:name get-column-from-table :? :*
-SELECT :i:column FROM :i:name :sql:filters :sql:sort
+--:name get-top-five-departure-with-station-names :? :*
+SELECT 
+journeys.departure_station_id as station_id, 
+COUNT(journeys.return_station_id),
+departure.name AS station_name,
+departure.namn AS station_namn,
+departure.nimi AS station_nimi
+FROM journeys 
+JOIN stations departure ON departure.stationid = journeys.departure_station_id
+JOIN stations return ON return.stationid = journeys.return_station_id
+WHERE journeys.return_station_id LIKE :v:return_station_id :sql:days
+GROUP BY station_id, station_name, station_namn, station_nimi
+ORDER BY COUNT(return_station_id) DESC
+LIMIT 5
 
---:name get-data-types-of-table :? :*
-SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = :name
-
---:name get-data-type-of-column-in-table :? :*
-SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = :name AND column_name = :column
+--:name get-top-five-return-with-station-names :? :*
+SELECT 
+journeys.return_station_id AS station_id, 
+COUNT(journeys.departure_station_id),
+return.name AS station_name,
+return.namn AS station_namn,
+return.nimi AS station_nimi
+FROM journeys 
+JOIN stations departure ON departure.stationid = journeys.departure_station_id
+JOIN stations return ON return.stationid = journeys.return_station_id
+WHERE journeys.departure_station_id LIKE :v:departure_station_id :sql:days
+GROUP BY station_id, station_name, station_namn, station_nimi
+ORDER BY COUNT(departure_station_id) DESC
+LIMIT 5
 
 --:name create-new-table! :! :n
 CREATE TABLE :i:name
@@ -86,16 +110,6 @@ WHERE departure_station_id LIKE :v:departure_station_id AND extract(hour from re
 SELECT depature_station_id, extract(hour from departure)
 FROM journeys 
 WHERE return_station_id LIKE :v:return_station_id
-
---:name count-journeys-that-hour-from-that-station-during-weekdays :? :*
-SELECT COUNT(*)
-FROM journeys 
-WHERE departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) BETWEEN 1 and 5 AND extract(hour from departure) = :v:hour
-
---:name count-journeys-that-hour-from-that-station-during-weekends :? :*
-SELECT COUNT(*)
-FROM journeys 
-WHERE departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) NOT BETWEEN 1 and 5 AND extract(hour from departure) = :v:hour
 
 --:name count-journeys-per-hour-from-station-during-weekends :? :*
 SELECT extract(hour from departure), COUNT(*)

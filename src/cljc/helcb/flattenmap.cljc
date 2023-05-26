@@ -1,4 +1,4 @@
-(ns helcb.utils)
+(ns helcb.flattenmap)
 
 (defn lazy-flatten-map
   ([m] (lazy-flatten-map (map vector (keys m)) m))
@@ -23,7 +23,3 @@
 
 (defn all-vals [m]
   (map #(get-in m %) (lazy-flatten-map m)))
-
-(defn seq-to-text [col]
-  (apply str (first col)
-         (map (fn [x y] (str x y)) (repeat ", ") (rest col))))

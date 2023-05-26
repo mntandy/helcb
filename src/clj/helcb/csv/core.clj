@@ -25,11 +25,11 @@
        (repeat (get-labels (first csv-data)))
        (rest csv-data)))
 
-(defn filter-labels [labels m]
+(defn filter-labels [labels coll]
   (if (coll? labels)
-    (map #(select-keys % labels) m)
-    m))
+    (map #(select-keys % labels) coll)
+    coll))
 
-(defn import-from-uri [uri sep iterate! labels]
+(defn import-from-uri [uri sep consume! labels]
   (with-open [reader (io/reader uri)] 
-      (iterate! (filter not-empty (filter-labels labels (csv-data->maps (read-csv reader sep)))))))
+      (consume! (filter not-empty (filter-labels labels (csv-data->maps (read-csv reader sep)))))))

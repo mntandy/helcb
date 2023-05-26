@@ -9,7 +9,6 @@
             [helcb.menu :refer [menu]]))
 
 (defn main []
-  (println @state/state)
   [:div
    [menu] 
    [notification/main]

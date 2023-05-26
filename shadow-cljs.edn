@@ -1,0 +1,5 @@
+{:lein true
+ :builds {:helcb {:target :browser
+                  :output-dir "resources/public/js"
+                  :asset-path "/js"
+                  :modules {:main {:entries [helcb.main]}}}}}

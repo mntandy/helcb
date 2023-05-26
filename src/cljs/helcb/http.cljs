@@ -2,7 +2,7 @@
   (:require
    [ajax.core :refer [GET POST]]
    [helcb.validation :as validate]
-   [helcb.utils :refer [all-vals]]))
+   [helcb.flattenmap :refer [all-vals]]))
 
 (defn check-for-errors [data validator error!]
   (if (contains? data :error)
@@ -35,7 +35,7 @@
    {:route "/stations-for-map/"
     :validator validate/stations-for-map}})
 
-(defn get [route-key data update error!]
+(defn get! [route-key data update error!]
   (let [{route :route
          validator :validator} (route-key routes)]
     (GET (str route data)

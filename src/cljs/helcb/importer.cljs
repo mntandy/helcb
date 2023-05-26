@@ -1,14 +1,14 @@
 (ns helcb.importer
   (:require
-   [helcb.state :as state]
+   [clojure.string :as str]
+   [helcb.state :as state] 
    [helcb.commons :as commons]
    [reagent.core :as r]
    [helcb.http :as http]
-   [helcb.columns :as columns]
-   [helcb.utils :as utils]))
+   [helcb.columns :as columns]))
 
 (def initial-settings {:importing false
-                       :uri "journeys.csv"
+                       :uri ""
                        :sep \,})
 
 (def settings (r/atom initial-settings))
@@ -18,14 +18,10 @@
 
 (defn csv-import-success! [columns-key result]
   (reset-to-initial!)
-  (state/set-message! (if (= 0 (:line result))
+  (state/set-message! (if (= 0 result)
                         [:div [:p "The file did not contain any importable rows. It must contain the following columns: "
-                               (utils/seq-to-text (columns/for-db columns-key :label))]]
-                        [:div [:p "Imported " (:imported result) " rows out of " (:line result) ". "]
-                         (if (seq (:ignored result))
-                           [:p "The following lines were not imported:" [:br]
-                            (utils/seq-to-text (:ignored result)) ". "]
-                           [:p "No importable line was ignored. "])
+                               (str/join ", " (columns/for-db columns-key :label))]]
+                        [:div [:p "Imported " result " rows."]
                          [:p "Did you expect more lines to be imported? Duplicates and errorous entries are ignored."]])))
 
 (defn submit-csv! [columns route]

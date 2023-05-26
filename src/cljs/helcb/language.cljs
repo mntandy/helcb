@@ -5,38 +5,6 @@
 
 (def current (r/atom "Eng"))
 
-(defn heading-by-language []
-  (case @current
-    "Eng" {:journeys "Journeys by bike"
-           :stations "Bike stations"}
-    "Fi" {:journeys "Matkat pyörällä"
-          :stations "Pyöräasemat"}
-    "Sv" {:journeys "Resor med cykel"
-           :stations "Cykelstationer"}))
-
-
-(defn row-by-language [type] 
-  (case type
-    :journeys (fn [row]
-                (assoc
-                 (case @current
-                   "Eng" {:departure-station (:departure_name row)
-                          :return-station (:return_name row)}
-                   "Fi" {:departure-station (:departure_nimi row)
-                         :return-station (:return_nimi row)}
-                   "Sv" {:departure-station (:departure_namn row)
-                         :return-station (:return_namn row)})
-                 :duration (:duration row)
-                 :distance (:distance row)))
-    :stations (fn [row]
-                (case @current
-                  "Eng" {:name (:name row)
-                         :address (str (:osoite row) ", " (:kaupunki row))}
-                  "Fi" {:name (:nimi row)
-                        :address (str (:osoite row) ", " (:kaupunki row))}
-                  "Sv" {:name (:namn row)
-                        :address (str (:adress row) ", " (:stad row))}))))
-
 (defn table-display [type]
   (case type
     :stations
@@ -53,7 +21,7 @@
             {:key :namn :label "Namn" :type "text"}
             {:key :adress :label "Adress" :type "text"}
             {:key :stad :label "Stad" :type "text"}])
-    :journeys 
+    :journeys
     (case @current
       "Eng" [{:key :departure :label "Departure" :type "timestamp"}
              {:key :departure.name :label "Departure station" :type "text"}
@@ -88,4 +56,3 @@
    "Eng"
    #(update! (-> % .-target .-value))
    options))
-

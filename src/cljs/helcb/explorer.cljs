@@ -2,8 +2,9 @@
   (:require
    [helcb.stations :as stations]
    [helcb.filters :as filters]
-   [helcb.language :as language]
    [helcb.commons :as commons]
+   [helcb.columns :as columns]
+   [helcb.language :as language]
    [reagent.core :as r]
    [helcb.state :as state]
    [helcb.leaflet-utils :as leaflet]
@@ -54,7 +55,7 @@
                  :limit (if add-offset-to-limit (str (+ (:limit @settings) (:offset @settings))) (str (:limit @settings)))))
 
 (defn get-data! [reset add-offset-to-limit]
-  (http/get :data 
+  (http/get! :data 
             (assoc (prepare-for-request reset add-offset-to-limit)
                             :name (case @state/display
                                     :explore-journeys "journeys"
@@ -162,6 +163,10 @@
     :disabled (:got-all @settings)}
    "Get more rows"]])
 
+(def heading 
+  {:journeys "Journeys by bike"  
+   :stations "Bike stations"})
+
 (defn main []
   (when-let [type (case @state/display
                     :explore-journeys :journeys
@@ -169,8 +174,9 @@
                     nil)]
     [:div.columns.is-centered>div.column.is-two-thirds
      [:div.has-background-white-ter.has-text-grey-dark.has-text-centered
+      [:span {:style {:float "left"}} [language/selector]]
       [:button.delete.is-large {:style {:float "right"} :on-click #(state/reset-display!) :aria-label "delete"}]
-      [:h1.title (get (language/heading-by-language) type)]]
+      [:h1.title (get heading type)]]
      [:div.has-background-white
       [table type]]
      [get-more-rows]]))

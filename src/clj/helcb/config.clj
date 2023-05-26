@@ -1,4 +1,13 @@
 (ns helcb.config
-  (:require [maailma.core :as m]))
+  (:require
+   [cprop.core :refer [load-config]]
+   [cprop.source :as source]
+   [mount.core :refer [args defstate]]))
 
-(def env (m/build-config (m/file "./config-local.edn")))
+(defstate env
+  :start
+  (load-config
+   :merge
+   [(args)
+    (source/from-system-props)
+    (source/from-env)]))

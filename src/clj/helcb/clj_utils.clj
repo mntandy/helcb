@@ -1,6 +1,9 @@
 (ns helcb.clj-utils
   (:require [clojure.string :as str]))
 
+(defn at-least-empty-string [input]
+  (if (string? input) input ""))
+
 (defn convert-to-bigint-or-zero [s]
   (try (bigint s) (catch Exception e 0)))
 
@@ -50,30 +53,3 @@
     (if-not (= (get s 0) \0)
       s
       (recur (subs s 1)))))
-
-
-(defn split-into-bigrams [input]
-  (let [lc-input (str/lower-case input)]
-    (reduce (fn [result next]
-              (conj result (subs lc-input next (+ next 2))))
-            []
-            (range (dec (count input))))))
-
-;below code is from https://andersmurphy.com/2020/12/13/clojure-string-similarity.html
-(defn mag [v]
-  (->> (map #(* % %) v)
-       (reduce +)
-       Math/sqrt))
-
-(defn dot [a b]
-  (->> (map * a b)
-       (reduce +)))
-
-(defn cosine [a-string b-string]
-  (let [a-tokens (split-into-bigrams a-string)
-        b-tokens (split-into-bigrams b-string)
-        all-tokens (distinct (concat a-tokens b-tokens))
-        a-vector (map #(get (frequencies a-tokens) % 0) all-tokens)
-        b-vector (map #(get (frequencies b-tokens) % 0) all-tokens)]
-    (/ (dot a-vector b-vector)
-       (* (mag a-vector) (mag b-vector)))))

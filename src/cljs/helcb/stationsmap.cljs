@@ -9,7 +9,7 @@
 (def map-width (r/atom 400))
 
 (defn download-every-station-for-map []
-  (http/get :stations-for-map nil
+  (http/get! :stations-for-map nil
             (fn [data]
               (leaflet/create-every-station-layer (:stations data))
               (leaflet/show-every-station))

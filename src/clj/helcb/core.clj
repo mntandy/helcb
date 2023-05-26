@@ -1,8 +1,8 @@
 (ns helcb.core
   (:require [helcb.http.core :as http]
             [helcb.db.core :as db]
-            [mount.core :as mount]
-            [helcb.columns :as columns]))
+            [mount.core :as mount])
+  (:gen-class))
 
 (defn -main
   [& args]
