@@ -16,6 +16,7 @@
 
 (defn initialise-with-id! [id]
   (when-not (contains? @stations id)
+    (swap! stations assoc id {})
     (http/get! :station-info 
               {:id id} 
               #(swap! stations assoc id {:top-five (:top-five %) :traffic (:traffic %) :row (:row %)})
@@ -80,12 +81,13 @@
   (let [dataset (get top-five current-display {})]
     [:table.table.is-narrow.is-size-6 {:id (str "table" id)}
      (into [:tbody]
-            (for [row dataset]
+            (for [row dataset 
+              :let [{station_id :station_id
+                     station_name :station_name} row]]
               [:tr
-               [:td {:key (:station_id row)}
-                (:station_id row)]
-               [:td {:key (:station_name row)}
-                (:station_name row)]]))]))
+               [:td {:key station_id} station_id]
+               [:td {:key station_name}
+                [:a.has-text-link {:on-click #(initialise-with-id! station_id)} station_name]]]))]))
 
 (def top "top five ")
 (def avt " and average daily traffic ")
@@ -112,7 +114,6 @@
 (defn update-station-data! [stationid key data]
   (http/post! "/update-station" data
               (fn [_]
-                (swap! stations assoc-in [stationid :edit] nil)
                 (swap! stations assoc-in [stationid :row key] (:value data))
                 (state/set-message! "Update successful!"))
               #(state/set-error-message! %)))

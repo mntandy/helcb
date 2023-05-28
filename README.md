@@ -4,7 +4,7 @@ This is an SPA webapp to explore CityBike journeys in Helsinki. Backend is writt
 
 It is a variation of the pre-assignment for Solita Dev Academy Finland 2023 [https://github.com/solita/dev-academy-2023-exercise](https://github.com/solita/dev-academy-2023-exercise). This was a very good exercise to dive into Clojure.
 
-The app is still work in progress. A live version can be found at [https://helcb.fly.dev](https://helcb.fly.dev/)
+The app is still work in progress. A live version can be found at [https://helcb.fly.dev](https://helcb.fly.dev/). Please note that While the site is hosted at fly.io, the database is hosted by supabase, and the site can thus ract slightly slow. This can be annoying in combination with the lack of temporary info about that the site is waiting for the database.
 
 ## Local build instructions
 The project is setup to compile with [Leiningen](https://leiningen.org/) and [shadow-cljs](https://github.com/thheller/shadow-cljs).
@@ -33,7 +33,7 @@ The easiest way to create the tables with the appropriate types is to do it from
 
 You can now first run the function `(mount/start)` to initialise the web server and connect to the postgres server. You can now create the required tables by running `(db/create-stations-table)` and `(db/create-journeys-table)`. 
 
-Once you have the server up and running, you can open the website in your browser at [http://localhost:3000/](http://localhost:3000/). 
+Once you have the server up and running, you can open the website in your browser at [http://localhost:3000/](http://localhost:3000/).
 
 The app has not been tested on mobile devices.
 
@@ -76,7 +76,7 @@ To this, you can now make a file `prod-config.edn`just like the one above. To si
 
     java -Dconf=dev-config.edn -jar target/uberjar/helcb.jar
 
-Otherwise, you can use the `Dockerfile` to get a container.
+Otherwise, you can use the `Dockerfile` to get a container after compiling the uberjar and the cljs release build.
 
 ## Main features
 With the app, you can search for particular journeys and stations, and then open a view to display info about particular stations. 
@@ -85,6 +85,8 @@ You can search for stations either using the map or with the list view. You can 
 * Choose between displaying station names in Finnish, "English" or Swedish
 * Open the station view of a station by clicking the name
 * Center on the station on the map by clicking the address
+
+To search for stations using the map, click "show all stations" and then find on the map the one you are curious about. Once you found and opened the station view of the station or stations in question, you can click "hide all stations" to clear the map.
 
 The station view contains the following:
 * A button to open a little table through which one can edit the info about the station
@@ -95,12 +97,14 @@ The station view contains the following:
 
 The station view thus contain info about the station and a chart displaying how often, on average, someone departs or returns a bike to that particular station, either during weekdays or weekends, and where they are most likely to go. 
 
-Importantly, you can open multiple stations views at the same time for comparison.
+Importantly, you can open multiple stations views at the same time for comparison. In fact, you can open as many as your browser can handle.
 
 ## Todo
+* Add a "loading"-functionality, for example to the pointer, that provides a hint to the user that the site is waiting for info from the database.
 * Complete the rest of input validation functions in `validation.cljc`.
 * Add some authentication procedure to block malicious and random imports.
 * Speed up the import process by replacing the batching with a transaction.
+* Make the filter for searching time stamps more versatile and interesting as it is currently limited to complete timestamps with date.
 
 ## License
 

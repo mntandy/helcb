@@ -2,7 +2,8 @@
   (:require
    [struct.core :as st]
    [helcb.columns :as columns]
-   [helcb.filters :as filters]))
+   [helcb.filters :as filters] 
+   [clojure.string :as str]))
 
 (defn str-min-2-validator [k] [[st/required :message (str (name k) " is required.")]
                                [st/min-count 2 :message "Be generous. Use at least two letters in the uri."]])
@@ -38,23 +39,31 @@
 (defn map-with-name [params]
   (first (st/validate params name-schema)))
 
+(defn is-acceptable-datetime-format-or-blank? [m key] 
+  (let [s (get-in m [key :text])] 
+    (or (str/blank? s)
+        (re-matches #"^\d{2}.\d{2}.\d{4} \d{2}:\d{2}:\d{2}$" s))))
+
 (defn label-data [type]
   {:sort-by-column [[{:validate (fn [s] (or (= s "") (some #{s} (columns/for-lookup type :key))))
                       :message "Sort-by-column is wrong."}]]
    :sort-direction [[{:message "Sort-direction is wrong."
                       :validate (fn [s] (or (= s "") (some #{s} ["ASC" "DESC"])))}]]
-   :filters [[{:message "Error with filters: some column is wrong"
+   :filters [[{:message "Something is wrong with some filter"
                :validate (fn [m] 
                            (every? (set (columns/for-lookup type :key)) (keys m)))}]
-             [{:message "Error with filters: some option is wrong"
+             [{:message "Something is wrong with the option of some filter"
                :validate (fn [m] (every?
                                   (fn [k]
                                     (some #{(get-in m [k :option])}
                                           (filters/options-for-type
                                            (columns/data-type-from-key-for-lookup type k))))
                                   (keys m)))}]
-             [{:message "Error with filters: some text is wrong"
-               :validate (fn [m] (every? (fn [k] (get-in m [k :text])) (keys m)))}]]
+             [{:message "Something is wrong with some search text"
+               :validate (fn [m] (every? (fn [k] (get-in m [k :text])) (keys m)))}]
+             [{:message "I am sorrt, but please search with complete date-time description of the form \"dd.MM.uuuu HH:mm:ss\""
+               :validate (fn [m] (and (is-acceptable-datetime-format-or-blank? m :departure)
+                                      (is-acceptable-datetime-format-or-blank? m :return)))}]]
    :offset [[st/number-str :message "offset no good."]]
    :limit [[st/number-str :message "limit no good."]]})
 

@@ -16,7 +16,7 @@
 (defn where-clause [data-type option filter]
   (case data-type
     "integer" (str (get {"equal to" " = " "not equal to" " != " "greater than" " > " "less than" " < "} option "") (bigdec filter))
-    "timestamp" (str (get {"before" " < " "after" " > " "equal to" " = "} option "") " '" filter "'")
+    "timestamp" (str (get {"before" " < " "after" " > " "equal to" " = "} option "") " '" (utils/convert-time-with-pattern filter) "'")
     "text" (str " LIKE " (case option
                            "equal to" (str " '" filter "'")
                            "begins with" (str " '" filter "%'")
@@ -71,13 +71,14 @@
 (defn station-by-stationid [id]
   (first (db/get-rows-with-value {:name "stations" :column "stationid" :value id})))
 
-(defn get-top-five-return-and-departure [id]
-  (let [weekends "AND extract (dow from departure) NOT BETWEEN 1 and 5"
-        weekdays "AND extract (dow from departure) BETWEEN 1 and 5"]
+(def weekends "NOT BETWEEN 1 and 5")
+(def weekdays "BETWEEN 1 and 5")
+
+(defn get-top-five-return-and-departure [id] 
   {:from-weekends (db/get-top-five-departure-with-station-names {:return_station_id id :days weekends})
    :from-weekdays (db/get-top-five-departure-with-station-names {:return_station_id id :days weekdays}) 
    :to-weekends (db/get-top-five-return-with-station-names {:departure_station_id id :days weekends})
-   :to-weekdays (db/get-top-five-return-with-station-names {:departure_station_id id :days weekdays})}))
+   :to-weekdays (db/get-top-five-return-with-station-names {:departure_station_id id :days weekdays})})
 
 (defn get-all-entries-with-filter [params]
   (db/get-from-table-no-limit-no-offset (generate-lookup-map params :and)))
@@ -101,14 +102,14 @@
 (defn hour-as-key-and-average [d]
   (fn [m] [(int (:extract m)) (float (with-precision 2 (/ (:count m) (bigdec d))))]))
 
-(defn average-trips [days-in-db db-func m]
+(defn average-trips [days-in-db data]
   (into (sorted-map) 
         (map
          (hour-as-key-and-average (days-in-db))
-         (db-func m))))
+         data)))
 
 (defn average-trips-to-and-from-station [id]
-  {:to-weekends (average-trips weekend-days-in-db db/count-journeys-per-hour-to-station-during-weekends {:return_station_id id})
-   :to-weekdays (average-trips weekdays-in-db db/count-journeys-per-hour-to-station-during-weekdays {:return_station_id id})
-   :from-weekends (average-trips weekend-days-in-db db/count-journeys-per-hour-from-station-during-weekends {:departure_station_id id})
-   :from-weekdays (average-trips weekdays-in-db db/count-journeys-per-hour-from-station-during-weekdays {:departure_station_id id})})
+  {:to-weekends (average-trips weekend-days-in-db (db/count-journeys-per-hour-to-station {:return_station_id id :days weekends}))
+   :to-weekdays (average-trips weekdays-in-db (db/count-journeys-per-hour-to-station {:return_station_id id :days weekdays}))
+   :from-weekends (average-trips weekend-days-in-db (db/count-journeys-per-hour-from-station {:departure_station_id id :days weekends}))
+   :from-weekdays (average-trips weekdays-in-db (db/count-journeys-per-hour-from-station {:departure_station_id id :days weekdays}))})

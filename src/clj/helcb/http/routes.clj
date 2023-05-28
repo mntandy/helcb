@@ -16,16 +16,19 @@
   (response/ok
    (slurp "resources/html/index.html")))
 
-(defn print-and-return-error [e]
-  (println (.getMessage e))
-  {:error "Something's wrong with the database!"})
+(defn print-and-return-error [e m]
+   (println (.getMessage e))
+   {:error m})
 
-(defn check-for-errors-and-reply [params validator response]
-  (if-let [errors (validator params)]
-    {:error (apply str (vals errors))}
-    (try
-      (response params)
-      (catch Exception e (print-and-return-error e)))))
+(defn check-for-errors-and-reply 
+  ([params validator response]
+   (check-for-errors-and-reply params validator response "Bad request?"))
+  ([params validator response error-message]
+   (if-let [errors (validator params)]
+     {:error (apply str (vals errors))}
+     (try
+       (response params)
+       (catch Exception e (print-and-return-error e error-message))))))
 
 (defn import-stations [{:keys [params]}]
   (response/ok
@@ -39,14 +42,13 @@
   (response/ok
    (check-for-errors-and-reply params validate/updated-station #(db.update/column-in-row! (merge {:name "stations"} %)))))
 
-(defn get-data [{:keys [path-params]}]
+(defn get-data [{:keys [path-params]}] 
   (let [params (edn/read-string (:data path-params))]
     (response/ok (check-for-errors-and-reply params validate/data-request
                                              (fn [m] {:rows (look-up m)})))))
 
 (defn get-station-info [{:keys [path-params]}]
   (let [params (edn/read-string (:data path-params))]
-    (println params)
     (response/ok (check-for-errors-and-reply params validate/map-with-id
                                              (fn [m] {:row (station-by-stationid (:id m))
                                                       :traffic (average-trips-to-and-from-station (:id m))

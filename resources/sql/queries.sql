@@ -65,7 +65,7 @@ departure.nimi AS station_nimi
 FROM journeys 
 JOIN stations departure ON departure.stationid = journeys.departure_station_id
 JOIN stations return ON return.stationid = journeys.return_station_id
-WHERE journeys.return_station_id LIKE :v:return_station_id :sql:days
+WHERE journeys.return_station_id LIKE :v:return_station_id AND extract (dow from departure) :sql:days
 GROUP BY station_id, station_name, station_namn, station_nimi
 ORDER BY COUNT(return_station_id) DESC
 LIMIT 5
@@ -80,7 +80,7 @@ return.nimi AS station_nimi
 FROM journeys 
 JOIN stations departure ON departure.stationid = journeys.departure_station_id
 JOIN stations return ON return.stationid = journeys.return_station_id
-WHERE journeys.departure_station_id LIKE :v:departure_station_id :sql:days
+WHERE journeys.departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) :sql:days
 GROUP BY station_id, station_name, station_namn, station_nimi
 ORDER BY COUNT(departure_station_id) DESC
 LIMIT 5
@@ -101,38 +101,16 @@ FROM pg_catalog.pg_tables
 WHERE schemaname != 'pg_catalog' AND 
     schemaname != 'information_schema';
 
---:name select-return-journeys-that-hour-from-that-departure-station :? :*
-SELECT return_station_id, extract(hour from return)
-FROM journeys 
-WHERE departure_station_id LIKE :v:departure_station_id AND extract(hour from return) = :v:hour
-
---:name select-departure-journeys-that-hour-from-that-return-station :? :*
-SELECT depature_station_id, extract(hour from departure)
-FROM journeys 
-WHERE return_station_id LIKE :v:return_station_id
-
---:name count-journeys-per-hour-from-station-during-weekends :? :*
+--:name count-journeys-per-hour-from-station :? :*
 SELECT extract(hour from departure), COUNT(*)
 FROM journeys 
-WHERE departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) NOT BETWEEN 1 and 5
+WHERE departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) :sql:days
 GROUP BY extract(hour from departure)
 
---:name count-journeys-per-hour-from-station-during-weekdays :? :*
-SELECT extract(hour from departure), COUNT(*)
-FROM journeys 
-WHERE departure_station_id LIKE :v:departure_station_id AND extract (dow from departure) BETWEEN 1 and 5
-GROUP BY extract(hour from departure)
-
---:name count-journeys-per-hour-to-station-during-weekends :? :*
+--:name count-journeys-per-hour-to-station :? :*
 SELECT extract(hour from return), COUNT(*)
 FROM journeys 
-WHERE return_station_id LIKE :v:return_station_id AND extract (dow from return) NOT BETWEEN 1 and 5
-GROUP BY extract(hour from return)
-
---:name count-journeys-per-hour-to-station-during-weekdays :? :*
-SELECT extract(hour from return), COUNT(*)
-FROM journeys 
-WHERE return_station_id LIKE :v:return_station_id AND extract (dow from return) BETWEEN 1 and 5
+WHERE return_station_id LIKE :v:return_station_id AND extract (dow from return) :sql:days
 GROUP BY extract(hour from return)
 
 --:name get-months :? :*

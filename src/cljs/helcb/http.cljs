@@ -6,7 +6,7 @@
 
 (defn check-for-errors [data validator error!]
   (if (contains? data :error)
-    (error! (str "from server: " (:error data)))
+    (error! (:error data))
     (when-let [errors (validator data)]
       (error! (all-vals errors)))))
 
@@ -19,7 +19,7 @@
        {"accept" "application/transit+json"}
        :params data
        :handler #(when-not (check-for-errors % (validate/response route) error!) (success (:result %)))
-       :error-handler #(error! (str "From server: " %))})))
+       :error-handler #(error! %)})))
 
 (def routes
   {:data
