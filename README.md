@@ -6,6 +6,8 @@ It is a variation of the pre-assignment for Solita Dev Academy Finland 2023 [htt
 
 The app is still work in progress. A live version can be found at [https://helcb.fly.dev](https://helcb.fly.dev/). Please note that While the site is hosted at fly.io, the database is hosted by supabase, and the site can thus ract slightly slow. This can be annoying in combination with the lack of temporary info about that the site is waiting for the database.
 
+Also, please note that I completely forgot to try out how the website looks when the window is resized or otherwise not fullscreen. I also did not test it on mobile. That's quite embarassing.
+
 ## Local build instructions
 The project is setup to compile with [Leiningen](https://leiningen.org/) and [shadow-cljs](https://github.com/thheller/shadow-cljs).
 
@@ -102,6 +104,7 @@ Importantly, you can open multiple stations views at the same time for compariso
 ## Todo
 * Add a "loading"-functionality, for example to the pointer, that provides a hint to the user that the site is waiting for info from the database.
 * Complete the rest of input validation functions in `validation.cljc`.
+* Make it function and look nice when the window is smaller or also on mobile.
 * Add some authentication procedure to block malicious and random imports.
 * Speed up the import process by replacing the batching with a transaction.
 * Make the filter for searching time stamps more versatile and interesting as it is currently limited to complete timestamps with date.
