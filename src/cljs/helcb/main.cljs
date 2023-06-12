@@ -8,6 +8,7 @@
             [helcb.state :as state]
             [helcb.menu :refer [menu]]))
 
+
 (defn main []
   [:div
    [menu] 
@@ -16,8 +17,8 @@
      [importer/main]
      [:div
       [:f> stationsmap/main]
-      [stations/main]
-      [explorer/main]])])
+      [:f> stations/main]
+      (when (some #{@state/display} explorer/options) [:f> explorer/main])])])
 
 (dom/render
  [main]

@@ -15,13 +15,19 @@
               (leaflet/show-every-station))
             #(state/set-error-message! %)))
 
+(defn reset-map-width [] (let [windowWidth (. js/window -innerWidth)]
+                           (reset! map-width (- (min 500 windowWidth) 16))))
+
 (defn main []
   (react/useEffect (fn []
-                     (reset! map-width (. (. js/document getElementById "navbar") -offsetWidth))
-                     (leaflet/initialise-map)) (array []))
+                     (reset-map-width)
+                     (leaflet/initialise-map)
+                     (. js/window addEventListener "resize" reset-map-width)
+                     (fn [] (. js/window removeEventListener "resize" reset-map-width)))
+                   (array []))
   [:div
-   [:div.columns.is-centered.mt-3.mb-1 [:div {:style {:position "relative" :z-index "0" :width @map-width} :id "map"}]]
-   [:div.columns.is-centered.mt-1.mb-3 
+   [:div.columns.is-centered.mt-3.mb-1.is-mobile [:div {:style {:position "relative" :z-index "0" :width @map-width} :id "map"}]]
+   [:div.columns.is-centered.mt-1.mb-3.is-mobile
     [:div.column.is-narrow 
      (if-not (= @leaflet/stations-display :every-station)
       [:a {:on-click #(if-not @leaflet/every-station-layer 

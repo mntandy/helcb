@@ -23,3 +23,7 @@
   ([name value on-change on-enter style disabled]
    [input :text name value on-change on-enter style disabled]))
 
+(defn scroll-to-element-by-id [id]
+  (when-let [element (. js/document getElementById id)]
+    (. element scrollIntoView #js {:behavior "smooth" :block "nearest"})))
+

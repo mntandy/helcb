@@ -15,16 +15,11 @@
 (defn popup-html [name stationid]
   (str "<b>" name "</b><br /><a onclick='helcb.stations.openstation(\"" stationid "\")'>Open station info</a><br />"))
 
-(defn display-journey [x1 y1 x2 y2]
-  (println "displaying")
-  (. @leaflet-map fitBounds (. (. (. js/L polyline
-                                    (array (array (. js/Number parseFloat y1), (. js/Number parseFloat x1)) (array (. js/Number parseFloat y2), (. js/Number parseFloat x2)))
-                                    #js {:color "red"}) 
-                                 addTo @leaflet-map) 
-                              getBounds)))
+(defn get-coordinates [x y]
+  (array (. js/Number parseFloat y) (. js/Number parseFloat x)))
 
 (defn create-marker [stationid name x y] 
-  (. (. js/L marker (array (. js/Number parseFloat y) (. js/Number parseFloat x)))
+  (. (. js/L marker (get-coordinates x y))
        bindPopup (popup-html name stationid)))
 
 (defn clear-some-stations-layer []
@@ -74,10 +69,14 @@
   (. @some-stations-layer addTo @leaflet-map))
 
 (defn flyto [x y]
-  (. @leaflet-map flyTo (array (. js/Number parseFloat y) (. js/Number parseFloat x))))
+  (. @leaflet-map flyTo (get-coordinates x y)))
+
+(defn add-temporary-popup [stationid name x y]
+ (. (. (. (. js/L popup) setLatLng (get-coordinates x y)) setContent (popup-html name stationid)) openOn @leaflet-map))
 
 (defn goto-station [stationid name x y]
   (flyto x y)
+  (add-temporary-popup stationid name x y)
   (when-not (= @stations-display :every-station)
     (set-stations-display! :some-stations)
     (add-and-display-some-stations stationid name x y)))
