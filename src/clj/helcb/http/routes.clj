@@ -4,6 +4,7 @@
    [ring.util.http-response :as response]
    [helcb.validation :as validate]
    [helcb.http.middleware :as middleware]
+   [helcb.db.core :refer [db-connected]]
    [helcb.db.import :as db.import]
    [helcb.db.update :as db.update]
    [helcb.db.lookup :refer [station-by-stationid 
@@ -17,8 +18,8 @@
    (slurp "resources/html/index.html")))
 
 (defn print-and-return-error [e m]
-   (println (.getMessage e))
-   {:error m})
+  (println (.getMessage e))
+  {:error (if @db-connected m "Could not connect to database.")})
 
 (defn check-for-errors-and-reply 
   ([params validator response]
@@ -65,7 +66,9 @@
                                              (fn [m] {:top-five (get-top-five-return-and-departure (:id m))})))))
 
 (defn get-stations-for-map [_]
-  (response/ok {:stations (stations-for-map)}))
+  (response/ok (try 
+                 {:stations (stations-for-map)}
+                 (catch Exception e (print-and-return-error e "Bad request?")))))
 
 (def routes
   [""

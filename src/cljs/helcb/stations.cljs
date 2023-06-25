@@ -123,10 +123,11 @@
         [:div.card-content.has-background-white
          [:div.content 
           [:div.columns.is-visible
-           [:div.column "Address: " [:br] osoite " " kaupunki]
-           [:div.column [:a {:on-click (fn []
+           [:div.column "Address: "]
+           [:div.column.has-text-right [:a {:on-click (fn []
                                         (commons/scroll-to-element-by-id "map")
-                                        (leaflet/goto-station stationid name x y))} "Show on map"]]]]]]
+                                        (leaflet/goto-station stationid name x y))} "Show on map"]]]
+          [:p osoite " " kaupunki]]]]
       [traffic id data]]]]))
 
 

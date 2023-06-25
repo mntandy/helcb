@@ -9,9 +9,22 @@
    [clojure.string :as str]
    [helcb.config :refer [env]]))
 
-(mount/defstate ^:dynamic *db*
-  :start (conman/connect! {:jdbc-url (env :database-url)})
-  :stop (conman/disconnect! *db*))
+(def db-connected (atom false))
+
+(defn disconnect [db]
+  (reset! db-connected false)
+  (conman/disconnect! db))
+
+(defn try-to-mount []
+  (try
+    (mount/defstate ^:dynamic *db*
+      :start (conman/connect! {:jdbc-url (env :database-url)})
+      :stop (disconnect *db*))
+    (reset! db-connected true)
+    (catch Exception e
+      (println "Failed to connect to database: " (.getMessage e)))))
+
+(try-to-mount)
 
 (defn rebind []
   (conman/bind-connection *db* "sql/queries.sql"))

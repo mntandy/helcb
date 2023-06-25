@@ -116,7 +116,7 @@
 
 (defn table [type] 
    (let [columns (language/table-display type)]
-     [:div {:style {:overflow-x "auto"}}
+     [:div.table-container
       [:table.table.is-narrow
        [:thead
         (into [:tr] (for [{key :key label :label} columns]
