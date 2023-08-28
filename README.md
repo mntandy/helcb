@@ -4,7 +4,7 @@ This is an SPA webapp to explore CityBike journeys in Helsinki. Backend is writt
 
 This is a variation of the pre-assignment for Solita Dev Academy Finland 2023 [https://github.com/solita/dev-academy-2023-exercise](https://github.com/solita/dev-academy-2023-exercise). This was a very good exercise to dive into Clojure.
 
-The app is still work in progress. A live version can be found at [https://helcb.fly.dev](https://helcb.fly.dev/). Please note that While the site is hosted at fly.io, the database is hosted by supabase, and the site can thus ract slightly slow. This can be annoying in combination with the lack of temporary info about that the site is waiting for the database.
+The app is still work in progress. A live version can be found at [https://helcb.fly.dev](https://helcb.fly.dev/). Please note that the site is hosted at fly.io, but the database is hosted by supabase, and the site can thus react slightly slow. This can be annoying in combination with the lack of temporary info about that the site is waiting for the database.
 
 ## Local build instructions
 The project is setup to compile with [Leiningen](https://leiningen.org/) and [shadow-cljs](https://github.com/thheller/shadow-cljs).
