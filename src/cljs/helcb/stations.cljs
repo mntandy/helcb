@@ -111,13 +111,14 @@
          x :x
          y :y} (:row data)]
     (react/useEffect (fn []
-                      (commons/scroll-to-element-by-id (str "station-info" id)))
+                       (commons/scroll-to-element-by-id (str "station-info" id)))
                      (array []))
     [:div.card {:id (str "station-info" id)}
      [:header.card-header.has-background-white-ter.has-text-grey-dark
-      [:p.card-header-title "Station " stationid ": " name]
+      [:p.card-header-title (if (= name nil) "loading station info..." (str "Station " stationid ": " name))]
       [:button.delete {:on-click #(remove-station! id) :aria-label "close"}]]
      [:div.card-content.has-background-white
+      (if (= name nil) [:div.centered-flex [:div.large-loader.loader-colors]]
       [:div.content
        [:div.card.mb-3
         [:div.card-content.has-background-white
@@ -125,10 +126,10 @@
           [:div.columns.is-visible
            [:div.column "Address: "]
            [:div.column.has-text-right [:a {:on-click (fn []
-                                        (commons/scroll-to-element-by-id "map")
-                                        (leaflet/goto-station stationid name x y))} "Show on map"]]]
+                                                        (commons/scroll-to-element-by-id "map")
+                                                        (leaflet/goto-station stationid name x y))} "Show on map"]]]
           [:p osoite " " kaupunki]]]]
-      [traffic id data]]]]))
+       [traffic id data]])]]))
 
 
 (defn equal-partitions [n m]

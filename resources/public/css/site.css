@@ -47,3 +47,46 @@
   .stationlink:hover .stationtip {
     visibility: visible;
   }
+
+  .map-loader {
+    border: 4px solid white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+}
+
+.large-loader {
+    border: 4px solid white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+
+.loader-colors {
+    border-left-color: #00000000;
+    border-bottom-color: #f99a9a;
+    border-top-color: #f99a9a;
+    border-right-color: #00000000;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.centered-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.row {
+    flex-direction: column;
+}

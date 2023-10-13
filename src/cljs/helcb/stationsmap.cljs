@@ -8,9 +8,16 @@
 
 (def map-width (r/atom 400))
 
+(def show-loader (r/atom false))
+(def show-apology (r/atom false))
+
 (defn download-every-station-for-map []
+  (reset! show-loader true) 
+  (js/setTimeout (fn [] (reset! show-apology true)) 2000)
   (http/get! :stations-for-map nil
             (fn [data]
+              (reset! show-loader false)
+              (reset! show-apology false)
               (leaflet/create-every-station-layer (:stations data))
               (leaflet/show-every-station))
             #(state/set-error-message! %)))
@@ -30,9 +37,12 @@
    [:div.columns.is-centered.mt-1.mb-3.is-mobile
     [:div.column.is-narrow 
      (if-not (= @leaflet/stations-display :every-station)
-      [:a {:on-click #(if-not @leaflet/every-station-layer 
+      (if @show-loader 
+        [:div.centered-flex.row [:div.map-loader.loader-colors] (and @show-apology [:div "apologies for the slow database..."])] 
+        [:a {:on-click #(if-not @leaflet/every-station-layer 
                          (download-every-station-for-map)
-                         (leaflet/show-every-station))} "Show all stations "]
+                         (leaflet/show-every-station))} 
+        "Show all stations "])
       [:a {:on-click leaflet/hide-every-station} "Hide all stations "])]
     (when (= @leaflet/stations-display :some-stations)
       [:div.column.is-narrow [:a {:on-click leaflet/hide-some-stations} "Clear map"]])]])
